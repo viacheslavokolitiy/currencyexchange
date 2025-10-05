@@ -1,6 +1,9 @@
 use std::env;
 use std::path::PathBuf;
 
+const ENV_DATABASE_URL: &str = "DATABASE_URL";
+const ENV_MAX_CONNECTIONS: &str = "MAX_CONNECTIONS";
+
 pub struct EnvParser {
     env: PathBuf,
 }
@@ -11,13 +14,13 @@ impl EnvParser {
             env: dotenvy::dotenv().ok().expect("Unable to find .env file!"),
         }
     }
-    
+
     pub fn database_url(&self) -> String {
-        env::var("DATABASE_URL").expect("DATABASE_URL must be set")
+        env::var(ENV_DATABASE_URL).expect("DATABASE_URL must be set")
     }
-    
+
     pub fn max_connections(&self) -> u32 {
-        env::var("MAX_CONNECTIONS").expect("MAX_CONNECTIONS must be set")
+        env::var(ENV_MAX_CONNECTIONS).expect("MAX_CONNECTIONS must be set")
             .parse::<u32>().expect("MAX_CONNECTIONS must be a number")
     }
 }
