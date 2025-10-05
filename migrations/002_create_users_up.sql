@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS users(
     firstname VARCHAR(25) NOT NULL,
     middlename VARCHAR(20) NULL,
     lastname VARCHAR(35) NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    created_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ
 )
