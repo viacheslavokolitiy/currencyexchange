@@ -28,7 +28,7 @@ impl EnvParser {
 #[cfg(test)]
 mod env_parser_spec {
     use std::env;
-    use crate::migrationmanager::env_parser::EnvParser;
+    use crate::utils::env_parser::EnvParser;
 
     #[test]
     fn should_load_env() {

@@ -1,3 +1,7 @@
 mod migrationmanager;
 
-mod utils;
+pub mod utils;
+
+pub mod datasource;
+
+pub mod auth;
