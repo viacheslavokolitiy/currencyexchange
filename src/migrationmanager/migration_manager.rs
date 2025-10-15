@@ -25,7 +25,7 @@ impl MigrationManager {
 
 #[cfg(test)]
 mod migrationmanager_spec {
-    use crate::migrationmanager::env_parser::EnvParser;
+    use crate::utils::env_parser::EnvParser;
     use crate::migrationmanager::migration_manager::MigrationManager;
     use crate::utils::database_connector::DatabaseConnector;
 

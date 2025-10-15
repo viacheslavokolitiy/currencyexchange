@@ -3,6 +3,10 @@ use std::path::PathBuf;
 
 const ENV_DATABASE_URL: &str = "DATABASE_URL";
 const ENV_MAX_CONNECTIONS: &str = "MAX_CONNECTIONS";
+const ENV_JWT_SECRET: &str = "JWT_SECRET";
+const ENV_HOST: &str = "SERVER_HOST";
+
+const ENV_PORT: &str = "SERVER_PORT";
 
 pub struct EnvParser {
     env: PathBuf,
@@ -23,12 +27,24 @@ impl EnvParser {
         env::var(ENV_MAX_CONNECTIONS).expect("MAX_CONNECTIONS must be set")
             .parse::<u32>().expect("MAX_CONNECTIONS must be a number")
     }
+
+    pub fn jwt_secret(&self) -> String {
+        env::var(ENV_JWT_SECRET).expect("JWT_SECRET must be set")
+    }
+    
+    pub fn host(&self) -> String {
+        env::var(ENV_HOST).expect("SERVER_HOST must be set")
+    }
+    
+    pub fn port(&self) -> String {
+        env::var(ENV_PORT).expect("SERVER_PORT must be set")
+    }
 }
 
 #[cfg(test)]
 mod env_parser_spec {
     use std::env;
-    use crate::migrationmanager::env_parser::EnvParser;
+    use crate::utils::env_parser::EnvParser;
 
     #[test]
     fn should_load_env() {
