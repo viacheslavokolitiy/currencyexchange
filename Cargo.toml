@@ -1,24 +1,5 @@
-[package]
-name = "CurrencyExchange"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-sqlx = { version = "0.8.0", features = ["runtime-tokio", "tls-rustls", "postgres", "sqlx-postgres", "time"] }
-tokio = { version = "1.39.3", features = ["full"] }
-dotenvy = "0.15.7"
-anyhow = "1.0.100"
-jsonwebtoken = { version = "10.0.0", features = ["rust_crypto"] }
-actix-web = "4.11.0"
-actix-jwt-auth-middleware = "0.5.0"
-time = { version = "0.3.44", features = ["serde-human-readable", "serde"] }
-async-trait = "0.1.89"
-serde_with = "3.15.0"
-serde = { version = "1.0.228", features = ["derive"] }
-thiserror = "2.0.17"
-env_logger = "0.11.8"
-tracing = "0.1.41"
-tracing-actix-web = "0.7.19"
-
-[dev-dependencies]
-fake = { version = "4.4.0", features = ["derive"] }
+[workspace]
+resolver = "2"
+members = [
+    "currency-exchange-auth"
+]

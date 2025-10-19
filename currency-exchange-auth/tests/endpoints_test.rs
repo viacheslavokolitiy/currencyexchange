@@ -1,10 +1,10 @@
 use actix_web::web::Data;
 use actix_web::{test, App};
 use fake::{Dummy, Fake, Faker};
-use CurrencyExchange::api::post_handlers::create_user;
-use CurrencyExchange::datasource::api_models::CreateUserRequest;
-use CurrencyExchange::utils::database_connector::DatabaseConnector;
-use CurrencyExchange::utils::env_parser::EnvParser;
+use currency_exchange_auth::database_connector::DatabaseConnector;
+use currency_exchange_auth::datasource::api_models::CreateUserRequest;
+use currency_exchange_auth::env_parser::EnvParser;
+use currency_exchange_auth::post_handlers::create_user;
 
 #[actix_web::test]
 async fn create_user_should_succeed() {

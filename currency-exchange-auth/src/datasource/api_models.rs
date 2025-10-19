@@ -12,6 +12,12 @@ pub struct CreateUserRequest {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct LoginRequest {
+    pub username: String,
+    pub password: String,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct CreatedUser {
     pub id: i32,
     username: String,

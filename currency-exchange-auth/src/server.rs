@@ -1,11 +1,11 @@
 use std::net::TcpListener;
 use actix_web::{web, App, HttpServer};
 use actix_web::web::Data;
-use crate::api::middleware::{protected, JwtMiddleware};
-use crate::api::post_handlers::create_user;
-use crate::utils::database_connector::DatabaseConnector;
-use crate::utils::env_parser::EnvParser;
-use crate::utils::tracing_middleware::NetworkLogSpanBuilder;
+use crate::database_connector::DatabaseConnector;
+use crate::env_parser::EnvParser;
+use crate::middleware::{protected, JwtMiddleware};
+use crate::post_handlers::{create_user, login};
+use crate::tracing_middleware::NetworkLogSpanBuilder;
 
 pub struct Server {
     env_parser: EnvParser,
@@ -32,6 +32,7 @@ impl Server {
             .app_data(Data::new(pool.clone()))
             .wrap(NetworkLogSpanBuilder::new().middleware().clone())
             .service(create_user)
+            .service(login)
             .service(
                 web::resource("/protected")
                     .wrap(JwtMiddleware)

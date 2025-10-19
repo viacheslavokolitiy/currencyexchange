@@ -6,8 +6,8 @@ use actix_web::dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Tr
 use actix_web::{error, Error, HttpMessage, HttpRequest, HttpResponse};
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use jsonwebtoken::errors::ErrorKind;
-use crate::utils::env_parser::EnvParser;
-use crate::utils::jwt::Claims;
+use crate::env_parser::EnvParser;
+use crate::jwt::Claims;
 
 pub struct JwtMiddleware;
 pub struct JwtMiddlewareService<S> {

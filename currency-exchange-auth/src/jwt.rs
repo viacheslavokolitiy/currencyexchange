@@ -3,7 +3,7 @@ use jsonwebtoken::errors::Error;
 use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 use time::{Duration, OffsetDateTime};
-use crate::utils::env_parser::EnvParser;
+use crate::env_parser::EnvParser;
 
 #[derive(Debug, Serialize, Deserialize, FromRequest, Clone)]
 pub struct Claims {
