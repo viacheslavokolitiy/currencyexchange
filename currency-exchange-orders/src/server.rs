@@ -5,8 +5,10 @@ use actix_web::{web, App, HttpServer};
 use actix_web::web::Data;
 use currency_exchange_middleware::database_connector::DatabaseConnector;
 use currency_exchange_middleware::env_parser::EnvParser;
-use currency_exchange_middleware::middleware::{protected, JwtMiddleware};
+use currency_exchange_middleware::middleware::{JwtMiddleware};
 use currency_exchange_middleware::tracing_middleware::NetworkLogSpanBuilder;
+use crate::get_handlers::orders;
+use crate::post_handlers::create_order;
 
 const ENV_DATABASE_URL: &str = "DATABASE_URL";
 const ENV_MAX_CONNECTIONS: &str = "MAX_CONNECTIONS";
@@ -71,9 +73,14 @@ impl Server {
             .app_data(Data::new(pool.clone()))
             .wrap(NetworkLogSpanBuilder::new().middleware().clone())
             .service(
-                web::resource("/protected")
+                web::resource("/api/v1/orders")
                     .wrap(JwtMiddleware)
-                    .route(web::get().to(protected)),
+                    .route(web::get().to(orders)),
+            )
+            .service(
+                web::resource("/api/v1/orders/new")
+                    .wrap(JwtMiddleware)
+                    .route(web::post().to(create_order)),
             ))
             .listen(listener)?
             .run()

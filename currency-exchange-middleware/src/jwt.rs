@@ -7,7 +7,7 @@ use crate::env_parser::{JwtEnvParser, MiddlewareEnv};
 
 #[derive(Debug, Serialize, Deserialize, FromRequest, Clone)]
 pub struct Claims {
-    sub: String,
+    pub sub: String,
     exp: i64,
     iat: i64,
 }

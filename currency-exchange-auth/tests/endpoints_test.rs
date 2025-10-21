@@ -1,9 +1,9 @@
 use actix_web::web::Data;
 use actix_web::{test, App};
 use fake::{Dummy, Fake, Faker};
-use currency_exchange_auth::datasource::api_models::CreateUserRequest;
 use currency_exchange_middleware::env_parser::{EnvParser, JwtEnvParser, MiddlewareEnv};
 use currency_exchange_auth::post_handlers::create_user;
+use currency_exchange_data::datasource::api_models::CreateUserRequest;
 use currency_exchange_middleware::database_connector::DatabaseConnector;
 
 #[actix_web::test]

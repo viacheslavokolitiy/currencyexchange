@@ -2,7 +2,7 @@ use crate::env_parser::{JwtEnvParser, MiddlewareEnv};
 use crate::jwt::Claims;
 use actix_web::body::BoxBody;
 use actix_web::dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform};
-use actix_web::{error, Error, HttpMessage, HttpRequest, HttpResponse};
+use actix_web::{error, get, Error, HttpMessage, HttpRequest, HttpResponse, Responder};
 use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use std::future::{ready, Ready};
@@ -88,8 +88,4 @@ where
             srv.call(req).await
         })
     }
-}
-
-pub async fn protected(_req: HttpRequest) -> HttpResponse {
-    HttpResponse::Ok().body("You are authenticated! This is protected content.")
 }

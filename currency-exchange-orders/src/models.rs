@@ -61,8 +61,11 @@ pub struct SellOrder {
     issuer_id: i32,
     sell_currency_amount: i32,
     exchange_rate: f32,
+    #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]
     created_at: Option<OffsetDateTime>,
+    #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]
     updated_at: Option<OffsetDateTime>,
+    #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]
     expires_at: Option<OffsetDateTime>,
     sell_currency_id: i32,
     buy_currency_id: i32
@@ -72,4 +75,24 @@ pub struct SellOrder {
 pub struct CurrencyExchange {
     buy_orders: Vec<BuyOrder>,
     sell_orders: Vec<SellOrder>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum OrderType {
+    #[serde(rename = "buy_order")]
+    Buy,
+    #[serde(rename = "sell_order")]
+    Sell
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde_as]
+pub struct CreateOrderRequest {
+    pub order_type: OrderType,
+    pub offered_currency_amount: i32,
+    pub offered_currency_code: String,
+    pub desired_currency_code: String,
+    pub desired_currency_amount: i32,
+    #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]
+    pub expires_at: Option<OffsetDateTime>,
 }

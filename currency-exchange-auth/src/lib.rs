@@ -1,5 +1,3 @@
-pub mod datasource;
-
 pub mod post_handlers;
 
 mod model_mapper;

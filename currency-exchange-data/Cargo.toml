@@ -1,0 +1,12 @@
+[package]
+name = "currency-exchange-data"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde = { version = "1.0.228", features = ["derive"] }
+time = { version = "0.3.44", features = ["serde", "serde-human-readable"] }
+thiserror = "2.0.17"
+sqlx = { version = "0.8.6", features = ["time", "postgres", "sqlx-postgres", "tls-rustls", "runtime-tokio"] }
+serde_with = "3.15.0"
+async-trait = "0.1.89"

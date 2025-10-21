@@ -1,9 +1,9 @@
+use sqlx::PgPool;
+use time::OffsetDateTime;
 use crate::datasource::api_models::CreateUserRequest;
 use crate::datasource::errors::DataError;
 use crate::datasource::models::User;
 use crate::datasource::repository::user_repository::UserRepository;
-use sqlx::PgPool;
-use time::OffsetDateTime;
 
 pub struct Repository {
     pool: PgPool

@@ -1,5 +1,5 @@
-use crate::datasource::api_models::CreatedUser;
-use crate::datasource::models::User;
+use currency_exchange_data::datasource::api_models::CreatedUser;
+use currency_exchange_data::datasource::models::User;
 
 pub fn map_user_to_network_model(
     db_user: &User,

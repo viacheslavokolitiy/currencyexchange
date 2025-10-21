@@ -1,12 +1,12 @@
-use actix_web::{post, Responder};
-use actix_web::web::{Data, Json};
-use sqlx::PgPool;
-use crate::datasource::api_models::{CreateUserRequest, CreateUserResponse, LoginRequest};
-use crate::datasource::repository::repository::Repository;
-use crate::datasource::repository::user_repository::UserRepository;
-use currency_exchange_middleware::env_parser::{EnvParser, MiddlewareEnv};
-use currency_exchange_middleware::jwt::get_token;
 use crate::model_mapper::map_user_to_network_model;
+use actix_web::web::{Data, Json};
+use actix_web::{post, Responder};
+use currency_exchange_data::datasource::api_models::{CreateUserRequest, CreateUserResponse, LoginRequest};
+use currency_exchange_data::datasource::repository::repository::Repository;
+use currency_exchange_data::datasource::repository::user_repository::UserRepository;
+use currency_exchange_middleware::env_parser::MiddlewareEnv;
+use currency_exchange_middleware::jwt::get_token;
+use sqlx::PgPool;
 
 #[post("/api/v1/users/create")]
 pub async fn create_user(pool: Data<PgPool>, request: Json<CreateUserRequest>) -> impl Responder {

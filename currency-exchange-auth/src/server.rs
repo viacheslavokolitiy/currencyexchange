@@ -1,11 +1,10 @@
-use std::net::TcpListener;
-use actix_web::{web, App, HttpServer};
-use actix_web::web::Data;
-use currency_exchange_middleware::env_parser::{EnvParser, JwtEnvParser, MiddlewareEnv};
-use currency_exchange_middleware::middleware::{protected, JwtMiddleware};
 use crate::post_handlers::{create_user, login};
-use currency_exchange_middleware::tracing_middleware::NetworkLogSpanBuilder;
+use actix_web::web::Data;
+use actix_web::{App, HttpServer};
 use currency_exchange_middleware::database_connector::DatabaseConnector;
+use currency_exchange_middleware::env_parser::{JwtEnvParser, MiddlewareEnv};
+use currency_exchange_middleware::tracing_middleware::NetworkLogSpanBuilder;
+use std::net::TcpListener;
 
 pub struct Server {
     env_parser: MiddlewareEnv,
@@ -32,12 +31,7 @@ impl Server {
             .app_data(Data::new(pool.clone()))
             .wrap(NetworkLogSpanBuilder::new().middleware().clone())
             .service(create_user)
-            .service(login)
-            .service(
-                web::resource("/protected")
-                    .wrap(JwtMiddleware)
-                    .route(web::get().to(protected)),
-            ))
+            .service(login))
             .listen(listener)?
             .run()
             .await
