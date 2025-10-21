@@ -1,10 +1,10 @@
 use actix_web::web::Data;
 use actix_web::{test, App};
 use fake::{Dummy, Fake, Faker};
-use currency_exchange_auth::database_connector::DatabaseConnector;
 use currency_exchange_auth::datasource::api_models::CreateUserRequest;
-use currency_exchange_auth::env_parser::EnvParser;
+use currency_exchange_middleware::env_parser::{EnvParser, JwtEnvParser, MiddlewareEnv};
 use currency_exchange_auth::post_handlers::create_user;
+use currency_exchange_middleware::database_connector::DatabaseConnector;
 
 #[actix_web::test]
 async fn create_user_should_succeed() {
@@ -18,7 +18,7 @@ async fn create_user_should_succeed() {
         lastname: dummy_user.lastname,
     };
 
-    let parser = EnvParser::new();
+    let parser = MiddlewareEnv::new();
     let connector = DatabaseConnector::new(
         parser.database_url(),
         parser.max_connections()

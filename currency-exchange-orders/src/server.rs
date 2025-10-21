@@ -1,18 +1,56 @@
+use std::env;
 use std::net::TcpListener;
+use std::path::PathBuf;
 use actix_web::{web, App, HttpServer};
 use actix_web::web::Data;
-use currency_exchange_middleware::env_parser::{EnvParser, JwtEnvParser, MiddlewareEnv};
-use currency_exchange_middleware::middleware::{protected, JwtMiddleware};
-use crate::post_handlers::{create_user, login};
-use currency_exchange_middleware::tracing_middleware::NetworkLogSpanBuilder;
 use currency_exchange_middleware::database_connector::DatabaseConnector;
+use currency_exchange_middleware::env_parser::EnvParser;
+use currency_exchange_middleware::middleware::{protected, JwtMiddleware};
+use currency_exchange_middleware::tracing_middleware::NetworkLogSpanBuilder;
+
+const ENV_DATABASE_URL: &str = "DATABASE_URL";
+const ENV_MAX_CONNECTIONS: &str = "MAX_CONNECTIONS";
+const ENV_HOST: &str = "SERVER_HOST";
+
+const ENV_PORT: &str = "SERVER_PORT";
+
+pub struct OrdersEnv {
+    env: PathBuf,
+}
+
+impl OrdersEnv {
+    pub fn new() -> Self {
+        Self {
+            env: dotenvy::from_filename("./currency-exchange-orders/.env").expect("Cannot load env file"),
+        }
+    }
+}
+
+impl EnvParser for OrdersEnv {
+    fn database_url(&self) -> String {
+        env::var(ENV_DATABASE_URL).expect("DATABASE_URL must be set")
+    }
+
+    fn max_connections(&self) -> u32 {
+        env::var(ENV_MAX_CONNECTIONS).expect("MAX_CONNECTIONS must be set")
+            .parse::<u32>().expect("MAX_CONNECTIONS must be a number")
+    }
+
+    fn host(&self) -> String {
+        env::var(ENV_HOST).expect("SERVER_HOST must be set")
+    }
+
+    fn port(&self) -> String {
+        env::var(ENV_PORT).expect("SERVER_PORT must be set")
+    }
+}
 
 pub struct Server {
-    env_parser: MiddlewareEnv,
+    env_parser: OrdersEnv,
 }
 
 impl Server {
-    pub fn new(env_parser: MiddlewareEnv) -> Self {
+    pub fn new(env_parser: OrdersEnv) -> Self {
         Self { env_parser }
     }
 
@@ -25,14 +63,13 @@ impl Server {
         let pool = connector.connect().await;
         let host = self.env_parser.host();
         let port = self.env_parser.port();
+        println!("Listening on {}:{}", host, port);
         let listener =
             TcpListener::bind(format!("{}:{}", host, port)).expect("Couldn't bind to port");
         env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
         HttpServer::new(move || App::new()
             .app_data(Data::new(pool.clone()))
             .wrap(NetworkLogSpanBuilder::new().middleware().clone())
-            .service(create_user)
-            .service(login)
             .service(
                 web::resource("/protected")
                     .wrap(JwtMiddleware)

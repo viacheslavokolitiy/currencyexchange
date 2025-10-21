@@ -3,7 +3,7 @@ use jsonwebtoken::errors::Error;
 use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 use time::{Duration, OffsetDateTime};
-use crate::env_parser::EnvParser;
+use crate::env_parser::{JwtEnvParser, MiddlewareEnv};
 
 #[derive(Debug, Serialize, Deserialize, FromRequest, Clone)]
 pub struct Claims {
@@ -12,7 +12,7 @@ pub struct Claims {
     iat: i64,
 }
 
-pub fn get_token(user_id: &i32, parser: &EnvParser) -> Result<String, Error> {
+pub fn get_token(user_id: &i32, parser: &MiddlewareEnv) -> Result<String, Error> {
     let jwt_secret = parser.jwt_secret();
     let jwt_secret_bytes = jwt_secret.as_bytes();
     generate_jwt_token(&user_id, jwt_secret_bytes)
