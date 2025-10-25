@@ -18,3 +18,16 @@ pub struct User {
     #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]
     pub updated_at: Option<OffsetDateTime>,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct Currency {
+    pub currency_id: i32,
+    pub currency_code: Option<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Wallet {
+    pub wallet_id: i32,
+    pub user_id: i32,
+    pub currency_id: i32
+}

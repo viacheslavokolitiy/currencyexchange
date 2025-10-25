@@ -2,19 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use sqlx::FromRow;
 use time::OffsetDateTime;
-
-#[derive(Serialize, Deserialize)]
-pub struct Currency {
-    pub currency_id: i32,
-    pub currency_code: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct Wallet {
-    pub wallet_id: i32,
-    pub user_id: i32,
-    pub currencies: Vec<Currency>
-}
+use currency_exchange_data::datasource::models::Wallet;
 
 #[derive(Serialize, Deserialize, FromRow)]
 #[serde_as]

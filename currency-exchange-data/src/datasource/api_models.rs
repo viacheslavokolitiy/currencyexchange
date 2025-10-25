@@ -39,6 +39,23 @@ pub struct CreateUserResponse {
     token: Option<String>,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct CreateWalletRequest {
+    pub user_id: i32,
+    pub currency_id: i32
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct AddCurrencyRequest {
+    pub user_id: i32,
+    pub currency_id: i32
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct CreateCurrencyRequest {
+    pub currency_code: String,
+}
+
 impl CreateUserResponse {
     pub fn new(message: Option<String>, user: Option<CreatedUser>, token: Option<String>) -> Self {
         Self {
