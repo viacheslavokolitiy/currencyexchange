@@ -1,6 +1,6 @@
 use crate::model_mapper::map_user_to_network_model;
 use actix_web::web::{Data, Json};
-use actix_web::{post, Responder};
+use actix_web::{post, HttpResponse, Responder};
 use currency_exchange_data::datasource::api_models::{CreateUserRequest, CreateUserResponse, LoginRequest};
 use currency_exchange_data::datasource::repository::repository::Repository;
 use currency_exchange_data::datasource::repository::user_repository::UserRepository;
@@ -24,16 +24,16 @@ pub async fn create_user(pool: Data<PgPool>, request: Json<CreateUserRequest>) -
             Some(network_user),
             Some(token)
         );
-        Json(resp)
+        HttpResponse::Created().json(Json(resp))
     } else {
         let err_message = "Error upon creating user";
         let resp = CreateUserResponse::new(Some(err_message.to_string()), None, None);
-        Json(resp)
+        HttpResponse::BadRequest().json(Json(resp))
     }
 }
 
 #[post("/api/v1/login")]
-pub async fn login(pool: Data<PgPool>, request: Json<LoginRequest>) -> impl Responder {
+pub async fn login(pool: Data<PgPool>, request: Json<LoginRequest>) -> HttpResponse {
     let repository = Repository::new(pool.get_ref().clone());
     let parser = MiddlewareEnv::new();
     let user_option = repository.find_user_by_username(&request.0.username)
@@ -45,11 +45,11 @@ pub async fn login(pool: Data<PgPool>, request: Json<LoginRequest>) -> impl Resp
         if user_pwd == request.0.password {
             let id = user.user_id;
             let token = get_token(&id, &parser).expect("Unable to create token");
-            Json(token)
+            HttpResponse::Created().json(Json(token))
         } else {
-            Json("Invalid username/password".to_string())
+            HttpResponse::BadRequest().json(Json("Invalid username/password".to_string()))
         }
     } else {
-        Json("Invalid username/password".to_string())
+        HttpResponse::BadRequest().json(Json("Invalid username/password".to_string()))
     }
 }

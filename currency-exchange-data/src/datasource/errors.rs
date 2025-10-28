@@ -7,5 +7,7 @@ pub enum DataError {
     #[error("{0}")]
     WalletCreationError(String),
     #[error("{0}")]
-    WalletNotFoundError(String)
+    WalletNotFoundError(String),
+    #[error("{0}")]
+    WalletBalanceError(String),
 }

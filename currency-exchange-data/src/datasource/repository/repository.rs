@@ -1,11 +1,12 @@
-use crate::datasource::api_models::{AddCurrencyRequest, CreateCurrencyRequest, CreateUserRequest, CreateWalletRequest};
+use crate::datasource::api_models::{AddCurrencyRequest, BalanceRequest, CreateCurrencyRequest, CreateUserRequest, CreateWalletRequest};
 use crate::datasource::errors::DataError;
-use crate::datasource::models::{Currency, User, Wallet};
+use crate::datasource::models::{BuyOrder, Currency, CurrencyBalance, SellOrder, User, Wallet};
 use crate::datasource::repository::currency_repository::CurrencyRepository;
 use crate::datasource::repository::user_repository::UserRepository;
 use crate::datasource::repository::wallet_repository::WalletRepository;
 use sqlx::PgPool;
 use time::OffsetDateTime;
+use crate::datasource::repository::order_repository::OrderRepository;
 
 pub struct Repository {
     pool: PgPool
@@ -16,14 +17,21 @@ impl Repository {
         Self { pool }
     }
 
-    async fn find_wallet(&self, user_id: &i32) -> Option<Wallet> {
+    pub async fn find_wallet(&self, user_id: &i32) -> Option<Wallet> {
         sqlx::query_as!(Wallet, "SELECT * FROM wallets WHERE user_id = $1", user_id)
             .fetch_optional(&self.pool)
             .await
             .expect("Error wallet querying")
     }
+    
+    pub async fn find_all_wallets(&self, user_id: &i32) -> Vec<Wallet> {
+        sqlx::query_as!(Wallet, "SELECT * FROM wallets WHERE user_id = $1", user_id)
+            .fetch_all(&self.pool)
+            .await
+            .expect("Error wallet querying")
+    }
 
-    async fn find_currency(&self, code: &str) -> Option<Currency> {
+    pub async fn find_currency(&self, code: &str) -> Option<Currency> {
         sqlx::query_as!(Currency, "SELECT * FROM currencies WHERE currency_code = $1", code)
             .fetch_optional(&self.pool)
             .await
@@ -96,13 +104,29 @@ impl WalletRepository for Repository {
             Err(DataError::WalletNotFoundError(format!("Wallet for user with id={} not found", &uid)))
         }
     }
+
+    async fn get_currency_balance(&self, request: &BalanceRequest) -> Result<Option<CurrencyBalance>, DataError> {
+        let uid = request.user_id;
+        let result = sqlx::query_as!(CurrencyBalance,
+            "SELECT w.wallet_id, w.user_id, ca.amount, ca.currency_id FROM wallets as w
+            JOIN currency_amount as ca
+            ON w.wallet_id = ca.wallet_id
+            WHERE w.user_id = $1", uid)
+            .fetch_optional(&self.pool)
+            .await;
+        if result.is_ok() {
+            Ok(result.unwrap())
+        } else {
+            Err(DataError::WalletBalanceError(format!("Wallet balance query for user with id={} failed", &uid)))
+        }
+    }
 }
 
 #[async_trait::async_trait]
 impl CurrencyRepository for Repository {
     async fn create_currency(&self, request: &CreateCurrencyRequest) -> Result<Option<Currency>, DataError> {
         let code = &request.currency_code;
-        let currency = self.find_currency(&code)
+        let currency = self.find_currency(code)
             .await;
         if currency.is_some() {
             Err(DataError::EntryAlreadyExists(format!("Currency with code={} already exists", &code)))
@@ -113,5 +137,31 @@ impl CurrencyRepository for Repository {
                 .expect("Error creating currency");
             Ok(currency_opt)
         }
+    }
+}
+#[async_trait::async_trait]
+impl OrderRepository for Repository {
+    async fn find_buy_orders<S: Into<i64> + Send>(
+        &self,
+        limit: S
+    ) -> Result<Vec<BuyOrder>, DataError> {
+        let limit = limit.into();
+        let vec = sqlx::query_as!(BuyOrder, "SELECT * FROM buy_orders LIMIT $1", limit)
+            .fetch_all(&self.pool)
+            .await
+            .expect("Error loading orders");
+        Ok(vec)
+    }
+
+    async fn find_sell_orders<S: Into<i64> + Send>(
+        &self,
+        limit: S
+    ) -> Result<Vec<SellOrder>, DataError> {
+        let limit = limit.into();
+        let vec = sqlx::query_as!(SellOrder, "SELECT * FROM sell_orders LIMIT $1", limit)
+            .fetch_all(&self.pool)
+            .await
+            .expect("Error loading orders");
+        Ok(vec)
     }
 }

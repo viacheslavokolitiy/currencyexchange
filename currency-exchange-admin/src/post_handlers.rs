@@ -1,17 +1,17 @@
 use actix_web::web::{Data, Json, ReqData};
-use actix_web::{HttpRequest, Responder};
+use actix_web::{HttpRequest, HttpResponse};
 use currency_exchange_data::datasource::api_models::{AddCurrencyRequest, CreateCurrencyRequest, CreateWalletRequest};
 use currency_exchange_data::datasource::repository::currency_repository::CurrencyRepository;
 use currency_exchange_data::datasource::repository::repository::Repository;
+use currency_exchange_data::datasource::repository::wallet_repository::WalletRepository;
 use currency_exchange_middleware::jwt::Claims;
 use sqlx::PgPool;
-use currency_exchange_data::datasource::repository::wallet_repository::WalletRepository;
 
 pub async fn create_currency(
     req: HttpRequest,
     pool: Data<PgPool>,
     body: Json<CreateCurrencyRequest>
-) -> impl Responder {
+) -> HttpResponse {
     let headers = req.headers();
     if let Some(_) = headers.get("Authorization") {
         let json = body.into_inner();
@@ -19,9 +19,9 @@ pub async fn create_currency(
         let curr_response = repository.create_currency(&json)
             .await
             .expect("Unable to create currency");
-        Json(curr_response)
+        HttpResponse::Ok().json(Json(curr_response))
     } else {
-        Json(None)
+        HttpResponse::BadRequest().body("Authorization header missing")
     }
 }
 
@@ -30,7 +30,7 @@ pub async fn create_wallet(
     req: HttpRequest,
     pool: Data<PgPool>,
     body: Json<CreateWalletRequest>
-) -> impl Responder {
+) -> HttpResponse {
     let headers = req.headers();
     if let Some(_) = headers.get("Authorization") {
         let uid = claims.sub.parse::<i32>().expect("Invalid sub id");
@@ -38,12 +38,12 @@ pub async fn create_wallet(
         if uid == json.user_id {
             let repository = Repository::new(pool.get_ref().clone());
             let wallet = repository.create_wallet(&json).await.expect("Unable to create wallet");
-            Json(Some(wallet))
+            HttpResponse::Ok().json(Json(wallet))
         } else {
-            Json(None)
+            HttpResponse::BadRequest().body("Incorrect user id")
         }
     } else {
-        Json(None)
+        HttpResponse::BadRequest().body("Authorization header missing")
     }
 }
 
@@ -52,7 +52,7 @@ pub async fn add_currency_to_wallet(
     req: HttpRequest,
     pool: Data<PgPool>,
     body: Json<AddCurrencyRequest>,
-) -> impl Responder {
+) -> HttpResponse {
     let headers = req.headers();
     if let Some(_) = headers.get("Authorization") {
         let uid = claims.sub.parse::<i32>().expect("Invalid sub id");
@@ -62,11 +62,11 @@ pub async fn add_currency_to_wallet(
             let resp = repository.add_currency(&json)
                 .await
                 .expect("Unable to add currency");
-            Json(resp)
+            HttpResponse::Ok().json(Json(resp))
         } else {
-            Json(None)
+            HttpResponse::BadRequest().body("Incorrect user id")
         }
     } else {
-        Json(None)
+        HttpResponse::BadRequest().body("Authorization header missing")
     }
 }

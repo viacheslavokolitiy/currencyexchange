@@ -14,6 +14,7 @@ dotenvy = "0.15.7"
 env_logger = "0.11.8"
 tracing = "0.1.41"
 thiserror = "2.0.17"
+async-trait = "0.1.89"
 currency-exchange-middleware = { version = "0.1.0", path = "../currency-exchange-middleware"}
 currency-exchange-data = { version = "0.1.0", path = "../currency-exchange-data" }
 
