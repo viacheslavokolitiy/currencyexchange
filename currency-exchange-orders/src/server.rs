@@ -8,7 +8,7 @@ use currency_exchange_middleware::env_parser::EnvParser;
 use currency_exchange_middleware::middleware::{JwtMiddleware};
 use currency_exchange_middleware::tracing_middleware::NetworkLogSpanBuilder;
 use crate::get_handlers::{currency_balance, orders};
-use crate::post_handlers::{create_buy_order};
+use crate::post_handlers::{create_buy_order, create_sell_order};
 
 const ENV_DATABASE_URL: &str = "DATABASE_URL";
 const ENV_MAX_CONNECTIONS: &str = "MAX_CONNECTIONS";
@@ -86,6 +86,11 @@ impl Server {
                 web::resource("/api/v1/orders/buy/new")
                     .wrap(JwtMiddleware)
                     .route(web::post().to(create_buy_order)),
+            )
+            .service(
+                web::resource("/api/v1/orders/sell/new")
+                    .wrap(JwtMiddleware)
+                    .route(web::post().to(create_sell_order)),
             ))
             .listen(listener)?
             .run()

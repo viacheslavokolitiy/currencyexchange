@@ -1,11 +1,11 @@
-use crate::datasource::api_models::{AddCurrencyRequest, BalanceRequest, CreateCurrencyRequest, CreateUserRequest, CreateWalletRequest};
+use crate::datasource::api_models::{AddCurrencyRequest, BalanceRequest, CreateBuyOrderRequest, CreateCurrencyRequest, CreateSellOrderRequest, CreateUserRequest, CreateWalletRequest};
 use crate::datasource::errors::DataError;
 use crate::datasource::models::{BuyOrder, Currency, CurrencyBalance, SellOrder, User, Wallet};
 use crate::datasource::repository::currency_repository::CurrencyRepository;
 use crate::datasource::repository::user_repository::UserRepository;
 use crate::datasource::repository::wallet_repository::WalletRepository;
 use sqlx::PgPool;
-use time::OffsetDateTime;
+use time::{Duration, OffsetDateTime};
 use crate::datasource::repository::order_repository::OrderRepository;
 
 pub struct Repository {
@@ -163,5 +163,43 @@ impl OrderRepository for Repository {
             .await
             .expect("Error loading orders");
         Ok(vec)
+    }
+
+    async fn create_buy_order(&self, req: &CreateBuyOrderRequest) -> Result<BuyOrder, DataError> {
+        let issuer_id = req.issuer_id;
+        let amount = req.buy_amount;
+        let buy_id = req.buy_currency_id;
+        let sell_id = req.sell_currency_id;
+        let expiry_total = OffsetDateTime::now_utc() + Duration::days(req.expiry_days as i64);
+        let created_at = OffsetDateTime::now_utc();
+        let updated_at = OffsetDateTime::now_utc();
+        let result = sqlx::query_as!(BuyOrder, 
+            "INSERT INTO buy_orders(issuer_id, buy_currency_amount, buy_currency_id, sell_currency_id, created_at, updated_at, expires_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING buy_order_id, issuer_id, buy_currency_amount, buy_currency_id, sell_currency_id, created_at, updated_at, expires_at", 
+            issuer_id, amount, buy_id, sell_id, created_at, updated_at, expiry_total)
+            .fetch_one(&self.pool)
+            .await
+            .expect("Error creating buy order");
+        Ok(result)   
+    }
+
+    async fn create_sell_order(&self, req: &CreateSellOrderRequest) -> Result<SellOrder, DataError> {
+        let issuer_id = req.issuer_id;
+        let amount = req.sell_amount;
+        let buy_id = &req.buy_currency_id;
+        let sell_id = &req.sell_currency_id;
+        let expiry_total = OffsetDateTime::now_utc() + Duration::days(req.expiry_days as i64);
+        let created_at = OffsetDateTime::now_utc();
+        let updated_at = OffsetDateTime::now_utc();
+        let result = sqlx::query_as!(SellOrder, 
+            "INSERT INTO sell_orders(issuer_id, sell_currency_amount, buy_currency_id, sell_currency_id, created_at, updated_at, expires_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING sell_order_id, issuer_id, sell_currency_amount, buy_currency_id, sell_currency_id, created_at, updated_at, expires_at", 
+            issuer_id, amount, buy_id, sell_id, created_at, updated_at, expiry_total)
+            .fetch_one(&self.pool)
+            .await
+            .expect("Error creating sell order");
+        Ok(result)
     }
 }

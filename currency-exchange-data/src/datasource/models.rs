@@ -31,7 +31,6 @@ pub struct BuyOrder {
     pub buy_order_id: Option<i32>,
     pub issuer_id: Option<i32>,
     pub buy_currency_amount: Option<i32>,
-    pub exchange_rate: Option<f64>,
     #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]
     pub created_at: Option<OffsetDateTime>,
     #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]
@@ -48,7 +47,6 @@ pub struct SellOrder {
     pub sell_order_id: Option<i32>,
     pub issuer_id: Option<i32>,
     pub sell_currency_amount: Option<i32>,
-    pub exchange_rate: Option<f64>,
     #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]
     pub created_at: Option<OffsetDateTime>,
     #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]

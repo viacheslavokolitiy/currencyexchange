@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use time::OffsetDateTime;
 
 #[derive(Serialize, Deserialize)]
@@ -61,6 +62,24 @@ pub struct BalanceRequest {
     pub wallet_id: i32,
     pub user_id: i32,
     pub currency_code: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct CreateBuyOrderRequest {
+    pub issuer_id: i32,
+    pub buy_amount: i32,
+    pub buy_currency_id: i32,
+    pub sell_currency_id: i32,
+    pub expiry_days: i32,
+}
+#[derive(Serialize, Deserialize)]
+#[serde_as]
+pub struct CreateSellOrderRequest {
+    pub issuer_id: i32,
+    pub sell_amount: i32,
+    pub sell_currency_id: i32,
+    pub buy_currency_id: i32,
+    pub expiry_days: i32,
 }
 
 impl CreateUserResponse {

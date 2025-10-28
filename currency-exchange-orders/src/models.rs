@@ -30,12 +30,3 @@ pub struct CurrencyExchange {
     buy_orders: Vec<BuyOrder>,
     sell_orders: Vec<SellOrder>,
 }
-#[derive(Serialize, Deserialize)]
-#[serde_as]
-pub struct CreateBuyOrderRequest {
-    pub buy_amount: i32,
-    pub buy_currency_code: String,
-    pub sell_currency_code: String,
-    #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]
-    pub expires_at: Option<OffsetDateTime>,
-}

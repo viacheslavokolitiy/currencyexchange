@@ -5,7 +5,7 @@ use web::{Data, ReqData};
 use currency_exchange_data::datasource::api_models::BalanceRequest;
 use currency_exchange_data::datasource::repository::repository::Repository;
 use currency_exchange_data::datasource::repository::wallet_repository::WalletRepository;
-use currency_exchange_data::datasource::responses::{BalanceNotFoundResponse, CurrencyNotFoundResponse, WalletNotFoundResponse};
+use currency_exchange_data::datasource::error_responses::{BalanceNotFoundResponse, CurrencyNotFoundResponse, WalletNotFoundResponse};
 use currency_exchange_middleware::jwt::Claims;
 
 pub async fn orders(_req: HttpRequest) -> HttpResponse {
