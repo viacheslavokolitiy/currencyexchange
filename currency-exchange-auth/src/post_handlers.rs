@@ -9,7 +9,7 @@ use currency_exchange_middleware::jwt::get_token;
 use sqlx::PgPool;
 
 #[post("/api/v1/users/create")]
-pub async fn create_user(pool: Data<PgPool>, request: Json<CreateUserRequest>) -> impl Responder {
+pub async fn create_user(pool: Data<PgPool>, request: Json<CreateUserRequest>) -> HttpResponse {
     let repository = Repository::new(pool.get_ref().clone());
     let user = repository.create_user(&request.0)
         .await

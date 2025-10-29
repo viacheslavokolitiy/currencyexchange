@@ -1,5 +1,5 @@
 use time::OffsetDateTime;
-use currency_exchange_middleware::env_parser::{EnvParser, MiddlewareEnv};
+use currency_exchange_middleware::env_parser::MiddlewareEnv;
 use currency_exchange_auth::server::Server;
 
 #[actix_web::main]
