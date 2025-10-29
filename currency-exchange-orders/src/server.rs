@@ -7,7 +7,8 @@ use currency_exchange_middleware::database_connector::DatabaseConnector;
 use currency_exchange_middleware::env_parser::EnvParser;
 use currency_exchange_middleware::middleware::{JwtMiddleware};
 use currency_exchange_middleware::tracing_middleware::NetworkLogSpanBuilder;
-use crate::get_handlers::{currency_balance, orders};
+use crate::get_handlers::{buy_orders, currency_balance, sell_orders};
+use crate::order_endpoints::{GET_BUY_ORDERS, GET_MY_BALANCE, GET_SELL_ORDERS, POST_NEW_BUY_ORDER, POST_NEW_SELL_ORDER};
 use crate::post_handlers::{create_buy_order, create_sell_order};
 
 const ENV_DATABASE_URL: &str = "DATABASE_URL";
@@ -73,22 +74,27 @@ impl Server {
             .app_data(Data::new(pool.clone()))
             .wrap(NetworkLogSpanBuilder::new().middleware().clone())
             .service(
-                web::resource("/api/v1/orders")
+                web::resource(GET_BUY_ORDERS)
                     .wrap(JwtMiddleware)
-                    .route(web::get().to(orders)),
+                    .route(web::get().to(buy_orders)),
             )
             .service(
-                web::resource("/api/v1/me/balance")
+                web::resource(GET_SELL_ORDERS)
+                    .wrap(JwtMiddleware)
+                    .route(web::get().to(sell_orders))
+            )
+            .service(
+                web::resource(GET_MY_BALANCE)
                     .wrap(JwtMiddleware)
                     .route(web::get().to(currency_balance))
             )
             .service(
-                web::resource("/api/v1/orders/buy/new")
+                web::resource(POST_NEW_BUY_ORDER)
                     .wrap(JwtMiddleware)
                     .route(web::post().to(create_buy_order)),
             )
             .service(
-                web::resource("/api/v1/orders/sell/new")
+                web::resource(POST_NEW_SELL_ORDER)
                     .wrap(JwtMiddleware)
                     .route(web::post().to(create_sell_order)),
             ))

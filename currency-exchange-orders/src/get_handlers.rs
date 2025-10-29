@@ -1,15 +1,54 @@
 use actix_web::{web, HttpRequest, HttpResponse};
-use actix_web::web::Json;
+use actix_web::web::{Json, Query};
 use sqlx::{PgPool};
 use web::{Data, ReqData};
-use currency_exchange_data::datasource::api_models::BalanceRequest;
+use currency_exchange_data::datasource::api_models::{BalanceRequest, BuyOrderQueryParams, SellOrderQueryParams};
 use currency_exchange_data::datasource::repository::repository::Repository;
 use currency_exchange_data::datasource::repository::wallet_repository::WalletRepository;
-use currency_exchange_data::datasource::error_responses::{BalanceNotFoundResponse, CurrencyNotFoundResponse, WalletNotFoundResponse};
+use currency_exchange_data::datasource::error_responses::{BalanceNotFoundResponse, CurrencyNotFoundResponse, OrdersNotFoundResponse, WalletNotFoundResponse};
+use currency_exchange_data::datasource::repository::order_repository::OrderRepository;
 use currency_exchange_middleware::jwt::Claims;
 
-pub async fn orders(_req: HttpRequest) -> HttpResponse {
-    HttpResponse::Ok().body("You are authenticated! This is protected content.")
+pub async fn buy_orders(
+    req: HttpRequest,
+    pool: Data<PgPool>,
+    query: Query<BuyOrderQueryParams>,
+) -> HttpResponse {
+    let headers = req.headers();
+    if let Some(_) = headers.get("Authorization") {
+        let params = query.into_inner();
+        let repo = Repository::new(pool.as_ref().clone());
+        let buy_orders = repo.find_buy_orders(params.count)
+            .await;
+        if let Ok(buy_orders) = buy_orders {
+            HttpResponse::Ok().json(buy_orders)
+        } else {
+            HttpResponse::NotFound().json(OrdersNotFoundResponse::new("Buy orders not found"))
+        }
+    } else {
+        HttpResponse::Unauthorized().body("Authorization unauthorized")
+    }
+}
+
+pub async fn sell_orders(
+    req: HttpRequest,
+    pool: Data<PgPool>,
+    query: Query<SellOrderQueryParams>
+) -> HttpResponse {
+    let headers = req.headers();
+    if let Some(_) = headers.get("Authorization") {
+        let params = query.into_inner();
+        let repo = Repository::new(pool.as_ref().clone());
+        let buy_orders = repo.find_sell_orders(params.count)
+            .await;
+        if let Ok(buy_orders) = buy_orders {
+            HttpResponse::Ok().json(buy_orders)
+        } else {
+            HttpResponse::NotFound().json(OrdersNotFoundResponse::new("Sell orders not found"))
+        }
+    } else {
+        HttpResponse::Unauthorized().body("Authorization unauthorized")
+    }
 }
 
 pub async fn currency_balance(

@@ -82,6 +82,16 @@ pub struct CreateSellOrderRequest {
     pub expiry_days: i32,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct BuyOrderQueryParams {
+    pub count: i64
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SellOrderQueryParams {
+    pub count: i64
+}
+
 impl CreateUserResponse {
     pub fn new(message: Option<String>, user: Option<CreatedUser>, token: Option<String>) -> Self {
         Self {
