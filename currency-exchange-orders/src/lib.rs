@@ -6,4 +6,8 @@ pub mod post_handlers;
 
 pub mod errors;
 
-pub(crate) mod order_endpoints;
+pub mod order_endpoints;
+
+pub mod order_transaction_manager;
+
+pub mod put_handlers;

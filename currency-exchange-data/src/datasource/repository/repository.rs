@@ -1,11 +1,12 @@
 use crate::datasource::api_models::{AddCurrencyRequest, BalanceRequest, CreateBuyOrderRequest, CreateCurrencyRequest, CreateSellOrderRequest, CreateUserRequest, CreateWalletRequest};
 use crate::datasource::errors::DataError;
-use crate::datasource::models::{BuyOrder, Currency, CurrencyBalance, SellOrder, User, Wallet};
+use crate::datasource::models::{BuyOrder, Currency, CurrencyAmount, CurrencyAmountQuery, CurrencyBalance, IncomingCurrencyWallet, OutgoingCurrencyWallet, SellOrder, User, Wallet};
 use crate::datasource::repository::currency_repository::CurrencyRepository;
 use crate::datasource::repository::user_repository::UserRepository;
 use crate::datasource::repository::wallet_repository::WalletRepository;
 use sqlx::PgPool;
 use time::{Duration, OffsetDateTime};
+use crate::datasource::repository::currency_amount_repository::CurrencyAmountRepository;
 use crate::datasource::repository::order_repository::OrderRepository;
 
 pub struct Repository {
@@ -120,6 +121,36 @@ impl WalletRepository for Repository {
             Err(DataError::WalletBalanceError(format!("Wallet balance query for user with id={} failed", &uid)))
         }
     }
+
+    async fn find_wallet_by_incoming_currency(
+        &self, 
+        issuer_id: &i32, 
+        incoming_currency_id: &i32
+    ) -> Result<Option<IncomingCurrencyWallet>, DataError> {
+        let result = sqlx::query_as!(IncomingCurrencyWallet,
+            "SELECT w.wallet_id, c.currency_id, c.currency_code FROM wallets AS w
+            JOIN currencies as c ON w.currency_id = c.currency_id
+            WHERE w.user_id = $1 AND c.currency_id = $2", issuer_id, incoming_currency_id)
+            .fetch_optional(&self.pool)
+            .await
+            .expect("Error finding incoming currency wallet");
+        Ok(result)
+    }
+
+    async fn find_wallet_by_outgoing_currency(
+        &self, 
+        issuer_id: &i32, 
+        outgoing_currency_id: &i32
+    ) -> Result<Option<OutgoingCurrencyWallet>, DataError> {
+        let result = sqlx::query_as!(OutgoingCurrencyWallet,
+            "SELECT w.wallet_id, c.currency_id, c.currency_code FROM wallets AS w
+            JOIN currencies as c ON w.currency_id = c.currency_id
+            WHERE w.user_id = $1 AND c.currency_id = $2", issuer_id, outgoing_currency_id)
+            .fetch_optional(&self.pool)
+            .await
+            .expect("Error finding outgoing currency wallet");
+        Ok(result)
+    }
 }
 
 #[async_trait::async_trait]
@@ -201,5 +232,55 @@ impl OrderRepository for Repository {
             .await
             .expect("Error creating sell order");
         Ok(result)
+    }
+}
+
+#[async_trait::async_trait]
+impl CurrencyAmountRepository for Repository {
+    async fn currency_amount(&self, currency_id: &i32) -> Result<Option<CurrencyAmount>, DataError> {
+        let result = sqlx::query_as!(CurrencyAmount,
+            "SELECT amount FROM currency_amount WHERE currency_id = $1", currency_id)
+            .fetch_optional(&self.pool)
+            .await
+            .expect("Error loading currency amount");
+        Ok(result)
+    }
+
+    async fn exchange_currencies(
+        &self,
+        sum: i32,
+        incoming_currency_id: i32,
+        outgoing_currency_id: i32,
+        exchange_rate: f32,
+        incoming_currency_wallet_id: i32,
+        outgoing_currency_wallet_id: i32
+    ) -> Result<Option<CurrencyAmountQuery>, DataError> {
+        let replenish_wallet_result = sqlx::query_as!(CurrencyAmount,
+            "UPDATE currency_amount SET amount = $1 WHERE currency_id = $2 AND wallet_id = $3", sum, incoming_currency_id, incoming_currency_wallet_id)
+            .execute(&self.pool)
+            .await
+            .expect("Error replenishing currency amount");
+        let drain_sum = sum * exchange_rate as i32;
+        let drain_amount = self.currency_amount(&outgoing_currency_id)
+            .await
+            .expect("Error getting currency amount")
+            .unwrap()
+            .amount
+            .unwrap() - drain_sum;
+        let drain_wallet_result = sqlx::query_as!(CurrencyAmount,
+            "UPDATE currency_amount SET amount = $1 WHERE currency_id = $2 AND wallet_id = $3", drain_amount, outgoing_currency_id, outgoing_currency_wallet_id)
+            .execute(&self.pool)
+            .await
+            .expect("Error draining currency amount");
+        if replenish_wallet_result.rows_affected() > 0 && drain_wallet_result.rows_affected() > 0 {
+            let exchanged_amount = sqlx::query_as!(CurrencyAmountQuery,
+            "SELECT * FROM currency_amount WHERE currency_id = $1", incoming_currency_id)
+                .fetch_optional(&self.pool)
+                .await
+                .expect("Error replenishing currency amount");
+            Ok(exchanged_amount)
+        } else {
+            Err(DataError::CurrencyExchangeError("Error during currency exchange".to_string()))
+        }
     }
 }

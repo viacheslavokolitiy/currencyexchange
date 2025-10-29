@@ -25,6 +25,11 @@ pub struct Currency {
     pub currency_code: Option<String>,
 }
 
+#[derive(Serialize, Deserialize, FromRow, Clone)]
+pub struct CurrencyAmount {
+    pub amount: Option<i32>,
+}
+
 #[derive(Serialize, Deserialize, FromRow)]
 #[serde_as]
 pub struct BuyOrder {
@@ -70,4 +75,42 @@ pub struct CurrencyBalance {
     pub wallet_id: Option<i32>,
     pub amount: Option<i32>,
     pub currency_id: Option<i32>
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct IncomingCurrencyWallet {
+    pub wallet_id: Option<i32>,
+    pub currency_id: Option<i32>,
+    pub currency_code: Option<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct OutgoingCurrencyWallet {
+    pub wallet_id: Option<i32>,
+    pub currency_id: Option<i32>,
+    pub currency_code: Option<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct IncomingCurrencyWalletWithBalance{
+    pub wallet_id: i32,
+    pub currency_id: i32,
+    pub currency_code: String,
+    pub amount: i32,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct OutgoingCurrencyWalletWithBalance {
+    pub wallet_id: i32,
+    pub currency_id: i32,
+    pub currency_code: String,
+    pub amount: i32,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct CurrencyAmountQuery {
+    pub id: Option<i32>,
+    pub amount: Option<i32>,
+    pub currency_id: Option<i32>,
+    pub wallet_id: Option<i32>,
 }

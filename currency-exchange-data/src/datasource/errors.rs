@@ -10,4 +10,6 @@ pub enum DataError {
     WalletNotFoundError(String),
     #[error("{0}")]
     WalletBalanceError(String),
+    #[error("{0}")]
+    CurrencyExchangeError(String),
 }

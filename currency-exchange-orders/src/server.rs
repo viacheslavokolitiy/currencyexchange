@@ -8,8 +8,9 @@ use currency_exchange_middleware::env_parser::EnvParser;
 use currency_exchange_middleware::middleware::{JwtMiddleware};
 use currency_exchange_middleware::tracing_middleware::NetworkLogSpanBuilder;
 use crate::get_handlers::{buy_orders, currency_balance, sell_orders};
-use crate::order_endpoints::{GET_BUY_ORDERS, GET_MY_BALANCE, GET_SELL_ORDERS, POST_NEW_BUY_ORDER, POST_NEW_SELL_ORDER};
+use crate::order_endpoints::{GET_BUY_ORDERS, GET_MY_BALANCE, GET_SELL_ORDERS, POST_NEW_BUY_ORDER, POST_NEW_SELL_ORDER, PUT_BUY_CURRENCY, PUT_SELL_CURRENCY};
 use crate::post_handlers::{create_buy_order, create_sell_order};
+use crate::put_handlers::{buy_currency, sell_currency};
 
 const ENV_DATABASE_URL: &str = "DATABASE_URL";
 const ENV_MAX_CONNECTIONS: &str = "MAX_CONNECTIONS";
@@ -97,6 +98,16 @@ impl Server {
                 web::resource(POST_NEW_SELL_ORDER)
                     .wrap(JwtMiddleware)
                     .route(web::post().to(create_sell_order)),
+            )
+            .service(
+                web::resource(PUT_BUY_CURRENCY)
+                    .wrap(JwtMiddleware)
+                    .route(web::put().to(buy_currency))
+            )
+            .service(
+                web::resource(PUT_SELL_CURRENCY)
+                    .wrap(JwtMiddleware)
+                    .route(web::put().to(sell_currency))
             ))
             .listen(listener)?
             .run()

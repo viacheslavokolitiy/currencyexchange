@@ -92,6 +92,15 @@ pub struct SellOrderQueryParams {
     pub count: i64
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct ExchangeCurrencyRequest {
+    pub sum: i32,
+    pub rate: f32,
+    pub order_issuer_id: i32,
+    pub incoming_currency_id: i32,
+    pub outgoing_currency_id: i32,
+}
+
 impl CreateUserResponse {
     pub fn new(message: Option<String>, user: Option<CreatedUser>, token: Option<String>) -> Self {
         Self {
