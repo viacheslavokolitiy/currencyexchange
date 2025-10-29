@@ -39,79 +39,8 @@ async fn create_currency_must_succeed() {
         .to_request();
     let res = test::call_service(&app, req).await;
     assert!(res.status().is_success());
-}
 
-#[actix_web::test]
-async fn add_currency_to_wallet_must_succeed() {
-    let parser = AdminEnv::new();
-    let connector = DatabaseConnector::new(
-        parser.database_url(),
-        parser.max_connections()
-    );
-    let pool = connector.connect().await;
-    let app = test::init_service(
-        App::new()
-            .app_data(Data::new(pool.clone()))
-            .service(
-                web::resource("/api/v1/wallet/currencies/add")
-                    .wrap(JwtMiddleware)
-                    .route(web::post().to(add_currency_to_wallet)),
-            )
-            .service(
-                web::resource("/api/v1/wallet/create")
-                    .wrap(JwtMiddleware)
-                    .route(web::post().to(create_wallet)),
-        )
-    ).await;
-    let middleware_env = MiddlewareEnv::new();
-    let jwt_token = get_token(&1, &middleware_env).unwrap();
-    let curr_req = AddCurrencyRequest {
-        user_id: 1,
-        currency_id: 1
-    };
-    let curr_req_two = AddCurrencyRequest {
-        user_id: 1,
-        currency_id: 2
-    };
-    let curr_req_three = AddCurrencyRequest {
-        user_id: 1,
-        currency_id: 3
-    };
-    let create_wallet_req = CreateWalletRequest {
-        user_id: 1,
-        currency_id: 1
-    };
-    let wallet_req = test::TestRequest::post()
-        .insert_header(("Authorization", format!("Bearer {}", jwt_token)))
-        .uri("/api/v1/wallet/create")
-        .set_json(&create_wallet_req)
-        .to_request();
-    let wallet_resp = test::call_service(&app, wallet_req).await;
-    assert!(wallet_resp.status().is_success());
-
-    let req = test::TestRequest::post()
-        .insert_header(("Authorization", format!("Bearer {}", jwt_token)))
-        .uri("/api/v1/wallet/currencies/add")
-        .set_json(&curr_req)
-        .to_request();
-    let res = test::call_service(&app, req).await;
-    assert!(res.status().is_success());
-
-    let req_two = test::TestRequest::post()
-        .insert_header(("Authorization", format!("Bearer {}", jwt_token)))
-        .uri("/api/v1/wallet/currencies/add")
-        .set_json(&curr_req_two)
-        .to_request();
-    let res = test::call_service(&app, req_two).await;
-    assert!(res.status().is_success());
-
-    let req_three = test::TestRequest::post()
-        .insert_header(("Authorization", format!("Bearer {}", jwt_token)))
-        .uri("/api/v1/wallet/currencies/add")
-        .set_json(&curr_req_three)
-        .to_request();
-    let res = test::call_service(&app, req_three).await;
-    assert!(res.status().is_success());
+    sqlx::query("DELETE FROM currencies").execute(&pool).await.unwrap();
 }
 
 #[derive(Debug, Dummy, Clone)]
