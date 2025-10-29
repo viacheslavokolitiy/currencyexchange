@@ -7,6 +7,7 @@ use currency_exchange_middleware::database_connector::DatabaseConnector;
 use currency_exchange_middleware::env_parser::EnvParser;
 use currency_exchange_middleware::middleware::JwtMiddleware;
 use currency_exchange_middleware::tracing_middleware::NetworkLogSpanBuilder;
+use crate::get_handlers::currencies;
 use crate::post_handlers::{add_currency_to_wallet, create_currency, create_wallet};
 
 const ENV_DATABASE_URL: &str = "DATABASE_URL";
@@ -80,6 +81,11 @@ impl Server {
                 web::resource("/api/v1/wallet/currencies/add")
                     .wrap(JwtMiddleware)
                     .route(web::post().to(add_currency_to_wallet))
+            )
+            .service(
+                web::resource("/api/v1/currencies")
+                    .wrap(JwtMiddleware)
+                    .route(web::get().to(currencies))
             )
             .service(
                 web::resource("/api/v1/wallet/create")

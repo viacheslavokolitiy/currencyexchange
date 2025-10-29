@@ -21,7 +21,7 @@ pub async fn create_currency(
             .expect("Unable to create currency");
         HttpResponse::Ok().json(Json(curr_response))
     } else {
-        HttpResponse::BadRequest().body("Authorization header missing")
+        HttpResponse::Unauthorized().body("Authorization header missing")
     }
 }
 
@@ -43,7 +43,7 @@ pub async fn create_wallet(
             HttpResponse::BadRequest().body("Incorrect user id")
         }
     } else {
-        HttpResponse::BadRequest().body("Authorization header missing")
+        HttpResponse::Unauthorized().body("Authorization header missing")
     }
 }
 
@@ -67,6 +67,6 @@ pub async fn add_currency_to_wallet(
             HttpResponse::BadRequest().body("Incorrect user id")
         }
     } else {
-        HttpResponse::BadRequest().body("Authorization header missing")
+        HttpResponse::Unauthorized().body("Authorization header missing")
     }
 }

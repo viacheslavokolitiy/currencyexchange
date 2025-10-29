@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "currency-exchange-admin",
     "currency-exchange-auth",
+    "currency-exchange-client",
     "currency-exchange-data",
     "currency-exchange-middleware",
     "currency-exchange-orders"

@@ -169,6 +169,14 @@ impl CurrencyRepository for Repository {
             Ok(currency_opt)
         }
     }
+    
+    async fn all_currencies(&self) -> Result<Vec<Currency>, DataError> {
+        let res = sqlx::query_as!(Currency, "SELECT * FROM currencies")
+            .fetch_all(&self.pool)
+            .await
+            .expect("Error getting all_currencies");
+        Ok(res)
+    }
 }
 #[async_trait::async_trait]
 impl OrderRepository for Repository {
