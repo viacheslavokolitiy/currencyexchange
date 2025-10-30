@@ -45,7 +45,7 @@ pub struct CreateWalletArgs {
     #[arg(long)]
     pub currency_id: i32,
     #[arg(long)]
-    auth_token: String,
+    pub auth_token: String,
 }
 
 #[derive(Parser, Serialize, Clone, Debug)]

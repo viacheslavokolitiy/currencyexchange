@@ -171,3 +171,12 @@ impl CreateCurrencyRequest {
         }
     }
 }
+
+impl CreateWalletRequest {
+    pub fn new<I: Into<i32>>(user_id: I, currency_id: I) -> Self {
+        Self {
+            user_id: user_id.into(),
+            currency_id: currency_id.into()
+        }
+    }
+}

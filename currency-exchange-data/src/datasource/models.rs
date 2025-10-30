@@ -62,7 +62,7 @@ pub struct SellOrder {
     pub buy_currency_id: Option<i32>
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Wallet {
     pub wallet_id: i32,
     pub user_id: i32,
