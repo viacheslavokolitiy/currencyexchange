@@ -25,7 +25,7 @@ pub struct Currency {
     pub currency_code: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, FromRow, Clone)]
+#[derive(Serialize, Deserialize, FromRow, Clone, Debug)]
 pub struct CurrencyAmount {
     pub amount: Option<i32>,
 }

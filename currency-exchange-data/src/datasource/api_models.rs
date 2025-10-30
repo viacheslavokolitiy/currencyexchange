@@ -225,3 +225,21 @@ impl CreateSellOrderRequest {
         }
     }
 }
+
+impl ExchangeCurrencyRequest {
+    pub fn new<I: Into<i32>, F: Into<f32>>(
+        sum: I,
+        rate: F,
+        order_issuer_id: I,
+        incoming_currency_id: I,
+        outgoing_currency_id: I,
+    ) -> Self {
+        Self {
+            sum: sum.into(),
+            rate: rate.into(),
+            order_issuer_id: order_issuer_id.into(),
+            incoming_currency_id: incoming_currency_id.into(),
+            outgoing_currency_id: outgoing_currency_id.into()
+        }
+    }
+}
