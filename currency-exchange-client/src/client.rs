@@ -32,9 +32,9 @@ pub struct LoginUserArgs {
 #[command(version, about, long_about = None)]
 pub struct CreateCurrencyArgs {
     #[arg(long)]
-    currency_code: String,
+    pub currency_code: String,
     #[arg(long)]
-    auth_token: String,
+    pub auth_token: String,
 }
 
 #[derive(Parser, Serialize, Clone, Debug)]

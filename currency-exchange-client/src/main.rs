@@ -1,8 +1,4 @@
-use crate::client_methods::{
-    create_user, 
-    display_currencies, 
-    login_user
-};
+use crate::client_methods::{create_new_currency, create_user, display_currencies, login_user};
 use clap::Parser;
 use currency_exchange_client::client::{ApiCommands, CliCommands, UserCommands};
 
@@ -10,6 +6,7 @@ mod api_endpoints {
     pub const LOGIN: &str = "/api/v1/login";
     pub const SIGNUP: &str = "/api/v1/users/create";
     pub const CURRENCY_LIST: &str = "/api/v1/currencies";
+    pub const CREATE_CURRENCY: &str = "/api/v1/currencies/create";
 }
 
 mod url_builder {
@@ -19,7 +16,7 @@ mod url_builder {
         let port = parser.parse_login_host_port();
         format!("{host}:{port}")
     }
-    
+
     pub fn build_user_api_base_url(parser: &ClientEnvParser) -> String {
         let host = parser.parse_user_host();
         let port = parser.parse_user_port();
@@ -39,12 +36,12 @@ mod password_encoder {
 }
 
 mod client_methods {
-    use crate::api_endpoints::{CURRENCY_LIST, LOGIN, SIGNUP};
+    use crate::api_endpoints::{CREATE_CURRENCY, CURRENCY_LIST, LOGIN, SIGNUP};
     use crate::password_encoder::encode_password;
     use crate::url_builder::{build_user_api_base_url, build_login_base_url};
-    use currency_exchange_client::client::{CreateUserArgs, ListCurrenciesArgs, LoginUserArgs};
+    use currency_exchange_client::client::{CreateCurrencyArgs, CreateUserArgs, ListCurrenciesArgs, LoginUserArgs};
     use currency_exchange_client::client_env_parser::ClientEnvParser;
-    use currency_exchange_data::datasource::api_models::{CreateUserRequest, CreateUserResponse, LoginRequest};
+    use currency_exchange_data::datasource::api_models::{CreateCurrencyRequest, CreateUserRequest, CreateUserResponse, LoginRequest};
     use reqwest::Client;
     use currency_exchange_data::datasource::models::Currency;
 
@@ -89,7 +86,7 @@ mod client_methods {
             println!("Failed to create user {:?}", res);
         }
     }
-    
+
     pub async fn display_currencies(args: ListCurrenciesArgs) {
         let token = args.auth_token;
         let network_client = Client::new();
@@ -104,8 +101,29 @@ mod client_methods {
                 let currencies = json.unwrap();
                 println!("{:?}", currencies);
             }
-        } else { 
+        } else {
             println!("Failed to get currencies {:?}", res);
+        }
+    }
+
+    pub async fn create_new_currency(args: CreateCurrencyArgs) {
+        let token = args.auth_token;
+        let currency_code = args.currency_code;
+        let network_client = Client::new();
+        let parser = ClientEnvParser::new();
+        let create_currency_req = CreateCurrencyRequest::new(currency_code);
+        let res = network_client.post(format!("{}://{}{}", parser.parse_link_host(), build_user_api_base_url(&parser), CREATE_CURRENCY))
+            .header("Authorization", format!("Bearer {}", token))
+            .json(&create_currency_req)
+            .send()
+            .await;
+        if res.is_ok() {
+            let json = res.unwrap().json::<Currency>().await;
+            if json.is_ok() {
+                println!("{:?}", json.unwrap());
+            }
+        } else {
+            println!("Failed to create currency {:?}", res);
         }
     }
 }
@@ -126,6 +144,9 @@ fn main() {
             CliCommands::Api { command } => match command {
                 ApiCommands::ListCurrencies {args} => {
                     display_currencies(args).await;
+                }
+                ApiCommands::CreateCurrency {args} => {
+                    create_new_currency(args).await;
                 }
                 _ => {}
             }

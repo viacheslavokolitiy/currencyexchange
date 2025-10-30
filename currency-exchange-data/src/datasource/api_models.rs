@@ -112,45 +112,62 @@ impl CreateUserResponse {
 }
 
 impl LoginRequest {
-    pub fn new(username: String, password: String) -> Self {
+    pub fn new<S: Into<String>>(username: S, password: S) -> Self {
         Self {
-            username,
-            password,
+            username: username.into(),
+            password: password.into(),
         }
     }
 }
 
 impl CreateUserRequest {
-    pub fn new(
-        username: String,
-        email: String,
-        password: String,
-        firstname: String,
+    pub fn new<S: Into<String>>(
+        username: S,
+        email: S,
+        password: S,
+        firstname: S,
         middlename: Option<String>,
-        lastname: String
+        lastname: S
     ) -> Self {
         Self {
-            username,
-            email,
-            password,
-            firstname,
+            username: username.into(),
+            email: email.into(),
+            password: password.into(),
+            firstname: firstname.into(),
             middlename,
-            lastname
+            lastname: lastname.into(),
         }
     }
 }
 
 impl CreatedUser {
-    pub fn new(
-        id: i32,
-        username: String,
-        email: String,
-        firstname: String,
+    pub fn new<S: Into<String>, I: Into<i32>>(
+        id: I,
+        username: S,
+        email: S,
+        firstname: S,
         middlename: Option<String>,
-        lastname: String,
+        lastname: S,
         created_at: Option<OffsetDateTime>,
         updated_at: Option<OffsetDateTime>
     ) -> Self {
-        Self { id, username, email, firstname, middlename, lastname, created_at, updated_at }
+        Self {
+            id: id.into(),
+            username: username.into(),
+            email: email.into(),
+            firstname: firstname.into(),
+            middlename,
+            lastname: lastname.into(),
+            created_at,
+            updated_at
+        }
+    }
+}
+
+impl CreateCurrencyRequest {
+    pub fn new<S: Into<String>>(code: S) -> Self {
+        Self {
+            currency_code: code.into(),
+        }
     }
 }
