@@ -30,7 +30,7 @@ pub struct CurrencyAmount {
     pub amount: Option<i32>,
 }
 
-#[derive(Serialize, Deserialize, FromRow)]
+#[derive(Serialize, Deserialize, FromRow, Debug)]
 #[serde_as]
 pub struct BuyOrder {
     pub buy_order_id: Option<i32>,
@@ -46,7 +46,7 @@ pub struct BuyOrder {
     pub sell_currency_id: Option<i32>,
 }
 
-#[derive(Serialize, Deserialize, FromRow)]
+#[derive(Serialize, Deserialize, FromRow, Debug)]
 #[serde_as]
 pub struct SellOrder {
     pub sell_order_id: Option<i32>,

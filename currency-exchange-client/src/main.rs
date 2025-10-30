@@ -1,4 +1,4 @@
-use crate::client_methods::{add_currency_to_wallet, create_new_currency, create_new_wallet, create_user, display_currencies, login_user};
+use crate::client_methods::{add_currency_to_wallet, create_new_currency, create_new_wallet, create_user, display_buy_orders, display_currencies, display_sell_orders, login_user};
 use clap::Parser;
 use currency_exchange_client::client::{ApiCommands, CliCommands, UserCommands};
 
@@ -9,6 +9,8 @@ mod api_endpoints {
     pub const CREATE_CURRENCY: &str = "/api/v1/currencies/create";
     pub const CREATE_WALLET: &str = "/api/v1/wallet/create";
     pub const ADD_CURRENCY: &str = "/api/v1/wallet/currencies/add";
+    pub const BUY_ORDERS: &str = "/api/v1/orders/buy";
+    pub const SELL_ORDERS: &str = "/api/v1/orders/sell";
 }
 
 mod url_builder {
@@ -22,6 +24,12 @@ mod url_builder {
     pub fn build_user_api_base_url(parser: &ClientEnvParser) -> String {
         let host = parser.parse_user_host();
         let port = parser.parse_user_port();
+        format!("{host}:{port}")
+    }
+
+    pub fn build_orders_api_base_url(parser: &ClientEnvParser) -> String {
+        let host = parser.parse_orders_host();
+        let port = parser.parse_orders_port();
         format!("{host}:{port}")
     }
 }
@@ -38,14 +46,14 @@ mod password_encoder {
 }
 
 mod client_methods {
-    use crate::api_endpoints::{ADD_CURRENCY, CREATE_CURRENCY, CREATE_WALLET, CURRENCY_LIST, LOGIN, SIGNUP};
+    use crate::api_endpoints::{ADD_CURRENCY, BUY_ORDERS, CREATE_CURRENCY, CREATE_WALLET, CURRENCY_LIST, LOGIN, SELL_ORDERS, SIGNUP};
     use crate::password_encoder::encode_password;
-    use crate::url_builder::{build_user_api_base_url, build_login_base_url};
-    use currency_exchange_client::client::{AddCurrencyArgs, CreateCurrencyArgs, CreateUserArgs, CreateWalletArgs, ListCurrenciesArgs, LoginUserArgs};
+    use crate::url_builder::{build_user_api_base_url, build_login_base_url, build_orders_api_base_url};
+    use currency_exchange_client::client::{AddCurrencyArgs, CreateCurrencyArgs, CreateUserArgs, CreateWalletArgs, ListCurrenciesArgs, LoginUserArgs, ShowBuyOrdersArgs, ShowSellOrdersArgs};
     use currency_exchange_client::client_env_parser::ClientEnvParser;
     use currency_exchange_data::datasource::api_models::{AddCurrencyRequest, CreateCurrencyRequest, CreateUserRequest, CreateUserResponse, CreateWalletRequest, LoginRequest};
     use reqwest::Client;
-    use currency_exchange_data::datasource::models::{Currency, Wallet};
+    use currency_exchange_data::datasource::models::{BuyOrder, Currency, SellOrder, Wallet};
 
     pub async fn login_user(args: LoginUserArgs) {
         let network_client = Client::new();
@@ -128,7 +136,7 @@ mod client_methods {
             println!("Failed to create currency {:?}", res);
         }
     }
-    
+
     pub async fn create_new_wallet(args: CreateWalletArgs) {
         let token = args.auth_token;
         let user_id = args.user_id;
@@ -153,7 +161,7 @@ mod client_methods {
             println!("Failed to create wallet {:?}", wallet_response);
         }
     }
-    
+
     pub async fn add_currency_to_wallet(args: AddCurrencyArgs) {
         let user_id = args.user_id;
         let currency_id = args.currency_id;
@@ -169,13 +177,57 @@ mod client_methods {
             .json(&add_currency_req)
             .send()
             .await;
-        if add_currency_res.is_ok() { 
+        if add_currency_res.is_ok() {
             let json = add_currency_res.unwrap().json::<Wallet>().await;
             if json.is_ok() {
                 println!("{:?}", json.unwrap());
-            } 
+            }
         } else {
             println!("Failed to add currency to {:?}", add_currency_res);
+        }
+    }
+
+    pub async fn display_buy_orders(args: ShowBuyOrdersArgs) {
+        let orders_limit = args.orders;
+        let token = args.auth_token;
+        let network_client = Client::new();
+        let parser = ClientEnvParser::new();
+        let params = [("count", orders_limit.to_string())];
+        let url = format!("{}://{}{}", parser.parse_link_host(), build_orders_api_base_url(&parser), BUY_ORDERS);
+        let url_with_params = reqwest::Url::parse_with_params(&url, &params).unwrap();
+        let res = network_client.get(url_with_params)
+            .header("Authorization", format!("Bearer {}", token))
+            .send()
+            .await;
+        if res.is_ok() {
+            let json = res.unwrap().json::<Vec<BuyOrder>>().await;
+            if json.is_ok() {
+                println!("{:?}", json.unwrap());
+            }
+        } else {
+            println!("Failed to find buy orders {:?}", res);
+        }
+    }
+    
+    pub async fn display_sell_orders(args: ShowSellOrdersArgs) {
+        let orders_limit = args.orders;
+        let token = args.auth_token;
+        let network_client = Client::new();
+        let parser = ClientEnvParser::new();
+        let params = [("count", orders_limit.to_string())];
+        let url = format!("{}://{}{}", parser.parse_link_host(), build_orders_api_base_url(&parser), SELL_ORDERS);
+        let url_with_params = reqwest::Url::parse_with_params(&url, &params).unwrap();
+        let res = network_client.get(url_with_params)
+            .header("Authorization", format!("Bearer {}", token))
+            .send()
+            .await;
+        if res.is_ok() {
+            let json = res.unwrap().json::<Vec<SellOrder>>().await;
+            if json.is_ok() {
+                println!("{:?}", json.unwrap());
+            }
+        } else {
+            println!("Failed to find buy orders {:?}", res);
         }
     }
 }
@@ -205,6 +257,12 @@ fn main() {
                 }
                 ApiCommands::AddCurrencyForWallet {args} => {
                     add_currency_to_wallet(args).await;
+                }
+                ApiCommands::BuyOrders {args} => {
+                    display_buy_orders(args).await;
+                }
+                ApiCommands::SellOrders {args} => {
+                    display_sell_orders(args).await;
                 }
                 _ => {}
             }

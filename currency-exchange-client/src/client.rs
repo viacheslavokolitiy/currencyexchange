@@ -65,7 +65,7 @@ pub struct ShowBuyOrdersArgs {
     #[arg(long)]
     pub orders: i64,
     #[arg(long)]
-    auth_token: String,
+    pub auth_token: String,
 }
 
 #[derive(Parser, Serialize, Clone, Debug)]
@@ -74,7 +74,7 @@ pub struct ShowSellOrdersArgs {
     #[arg(long)]
     pub orders: i64,
     #[arg(long)]
-    auth_token: String,
+    pub auth_token: String,
 }
 
 #[derive(Parser, Serialize, Clone, Debug)]
