@@ -2,6 +2,8 @@ use crate::client_methods::{add_currency_to_wallet, buy_currency, create_buy_ord
 use clap::Parser;
 use currency_exchange_client::client::{ApiCommands, CliCommands, UserCommands};
 
+///
+/// Endpoints list
 mod api_endpoints {
     pub const LOGIN: &str = "/api/v1/login";
     pub const SIGNUP: &str = "/api/v1/users/create";
@@ -17,6 +19,8 @@ mod api_endpoints {
     pub const SELL_CURRENCY: &str = "/api/v1/orders/sell/execute";
 }
 
+///
+/// Url builder module
 mod url_builder {
     use currency_exchange_client::client_env_parser::ClientEnvParser;
     pub fn build_login_base_url(parser: &ClientEnvParser) -> String {
@@ -38,6 +42,8 @@ mod url_builder {
     }
 }
 
+///
+/// Password encoder module
 mod password_encoder {
     use argon2::Config;
 
@@ -49,16 +55,44 @@ mod password_encoder {
     }
 }
 
+///
+/// CLI methods module
 mod client_methods {
     use crate::api_endpoints::{ADD_CURRENCY, BUY_CURRENCY, BUY_ORDERS, CREATE_BUY_ORDER, CREATE_CURRENCY, CREATE_SELL_ORDER, CREATE_WALLET, CURRENCY_LIST, LOGIN, SELL_CURRENCY, SELL_ORDERS, SIGNUP};
     use crate::password_encoder::encode_password;
     use crate::url_builder::{build_user_api_base_url, build_login_base_url, build_orders_api_base_url};
-    use currency_exchange_client::client::{AddCurrencyArgs, BuyCurrencyArgs, CreateBuyOrderArgs, CreateCurrencyArgs, CreateSellOrderArgs, CreateUserArgs, CreateWalletArgs, ListCurrenciesArgs, LoginUserArgs, SellCurrencyArgs, ShowBuyOrdersArgs, ShowSellOrdersArgs};
+    use currency_exchange_client::client::AddCurrencyArgs;
+    use currency_exchange_client::client::BuyCurrencyArgs;
+    use currency_exchange_client::client::CreateBuyOrderArgs;
+    use currency_exchange_client::client::CreateCurrencyArgs;
+    use currency_exchange_client::client::CreateSellOrderArgs;
+    use currency_exchange_client::client::CreateUserArgs;
+    use currency_exchange_client::client::CreateWalletArgs;
+    use currency_exchange_client::client::ListCurrenciesArgs;
+    use currency_exchange_client::client::LoginUserArgs;
+    use currency_exchange_client::client::SellCurrencyArgs;
+    use currency_exchange_client::client::ShowBuyOrdersArgs;
+    use currency_exchange_client::client::ShowSellOrdersArgs;
     use currency_exchange_client::client_env_parser::ClientEnvParser;
-    use currency_exchange_data::datasource::api_models::{AddCurrencyRequest, CreateBuyOrderRequest, CreateCurrencyRequest, CreateSellOrderRequest, CreateUserRequest, CreateUserResponse, CreateWalletRequest, ExchangeCurrencyRequest, LoginRequest};
+    use currency_exchange_data::datasource::api_models::AddCurrencyRequest;
+    use currency_exchange_data::datasource::api_models::CreateBuyOrderRequest;
+    use currency_exchange_data::datasource::api_models::CreateCurrencyRequest;
+    use currency_exchange_data::datasource::api_models::CreateSellOrderRequest;
+    use currency_exchange_data::datasource::api_models::CreateUserRequest;
+    use currency_exchange_data::datasource::api_models::CreateUserResponse;
+    use currency_exchange_data::datasource::api_models::CreateWalletRequest;
+    use currency_exchange_data::datasource::api_models::ExchangeCurrencyRequest;
+    use currency_exchange_data::datasource::api_models::LoginRequest;
     use reqwest::Client;
     use currency_exchange_data::datasource::models::{BuyOrder, Currency, CurrencyAmount, SellOrder, Wallet};
 
+    ///
+    /// Executes login using provided args from clap
+    /// # Arguments
+    ///
+    /// * `args`: Login user arguments from clap
+    ///
+    /// returns: ()
     pub async fn login_user(args: LoginUserArgs) {
         let network_client = Client::new();
         let parser = ClientEnvParser::new();
@@ -78,6 +112,13 @@ mod client_methods {
         }
     }
 
+    ///
+    /// Executes sign up using provided args from clap
+    /// # Arguments
+    ///
+    /// * `args`: Sign up user arguments from clap
+    ///
+    /// returns: ()
     pub async fn create_user(args: CreateUserArgs) {
         let network_client = Client::new();
         let parser = ClientEnvParser::new();
@@ -101,6 +142,13 @@ mod client_methods {
         }
     }
 
+    ///
+    /// Executes display currencies using provided args from clap
+    /// # Arguments
+    ///
+    /// * `args`: Display currencies arguments from clap
+    ///
+    /// returns: ()
     pub async fn display_currencies(args: ListCurrenciesArgs) {
         let token = args.auth_token;
         let network_client = Client::new();
@@ -120,6 +168,13 @@ mod client_methods {
         }
     }
 
+    ///
+    /// Executes create new currency using provided args from clap
+    /// # Arguments
+    ///
+    /// * `args`: Create currency arguments from clap
+    ///
+    /// returns: ()
     pub async fn create_new_currency(args: CreateCurrencyArgs) {
         let token = args.auth_token;
         let currency_code = args.currency_code;
@@ -141,6 +196,13 @@ mod client_methods {
         }
     }
 
+    ///
+    /// Executes create wallet using provided args from clap
+    /// # Arguments
+    ///
+    /// * `args`: Create wallet arguments from clap
+    ///
+    /// returns: ()
     pub async fn create_new_wallet(args: CreateWalletArgs) {
         let token = args.auth_token;
         let user_id = args.user_id;
@@ -166,6 +228,13 @@ mod client_methods {
         }
     }
 
+    ///
+    /// Executes add currency to wallet provided args from clap
+    /// # Arguments
+    ///
+    /// * `args`: Add currency arguments from clap
+    ///
+    /// returns: ()
     pub async fn add_currency_to_wallet(args: AddCurrencyArgs) {
         let user_id = args.user_id;
         let currency_id = args.currency_id;
@@ -191,6 +260,13 @@ mod client_methods {
         }
     }
 
+    ///
+    /// Executes display buy orders using provided args from clap
+    /// # Arguments
+    ///
+    /// * `args`: Display buy orders arguments from clap
+    ///
+    /// returns: ()
     pub async fn display_buy_orders(args: ShowBuyOrdersArgs) {
         let orders_limit = args.orders;
         let token = args.auth_token;
@@ -213,6 +289,13 @@ mod client_methods {
         }
     }
 
+    ///
+    /// Executes display sell orders using provided args from clap
+    /// # Arguments
+    ///
+    /// * `args`: Display sell orders arguments from clap
+    ///
+    /// returns: ()
     pub async fn display_sell_orders(args: ShowSellOrdersArgs) {
         let orders_limit = args.orders;
         let token = args.auth_token;
@@ -235,6 +318,13 @@ mod client_methods {
         }
     }
 
+    ///
+    /// Executes create buy order using provided args from clap
+    /// # Arguments
+    ///
+    /// * `args`: Create buy order arguments from clap
+    ///
+    /// returns: ()
     pub async fn create_buy_order(args: CreateBuyOrderArgs) {
         let user_id = args.issuer_id;
         let buy_amount = args.buy_amount;
@@ -267,7 +357,14 @@ mod client_methods {
             println!("Failed to create buy order {:?}", res);
         }
     }
-    
+
+    ///
+    /// Executes create sell order using provided args from clap
+    /// # Arguments
+    ///
+    /// * `args`: Create sell order arguments from clap
+    ///
+    /// returns: ()
     pub async fn create_sell_order(args: CreateSellOrderArgs) {
         let user_id = args.issuer_id;
         let sell_amount = args.sell_amount;
@@ -300,7 +397,14 @@ mod client_methods {
             println!("Failed to create buy order {:?}", res);
         }
     }
-    
+
+    ///
+    /// Executes buy currency using provided args from clap
+    /// # Arguments
+    ///
+    /// * `args`: Buy currency arguments from clap
+    ///
+    /// returns: ()
     pub async fn buy_currency(args: BuyCurrencyArgs) {
         let sum = args.sum;
         let rate = args.rate;
@@ -328,7 +432,14 @@ mod client_methods {
             println!("Failed to buy currency {:?}", res);
         }
     }
-    
+
+    ///
+    /// Executes sell currency using provided args from clap
+    /// # Arguments
+    ///
+    /// * `args`: Sell currency arguments from clap
+    ///
+    /// returns: ()
     pub async fn sell_currency(args: SellCurrencyArgs) {
         let sum = args.sum;
         let rate = args.rate;

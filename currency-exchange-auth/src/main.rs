@@ -2,6 +2,11 @@ use time::OffsetDateTime;
 use currency_exchange_middleware::env_parser::MiddlewareEnv;
 use currency_exchange_auth::server::Server;
 
+///
+/// Auth server main method to run it you should call
+/// ```
+/// cargo run --bin authserver
+/// ```
 #[actix_web::main]
 async fn main() {
     let parser = MiddlewareEnv::new();

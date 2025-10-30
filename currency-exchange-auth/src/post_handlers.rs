@@ -11,6 +11,15 @@ use currency_exchange_middleware::env_parser::MiddlewareEnv;
 use currency_exchange_middleware::jwt::get_token;
 use sqlx::PgPool;
 
+///
+/// POST request to sign up. Does not require auth token
+/// # Arguments
+///
+/// * `pool`: PostgreSQL pool
+/// * `request`: JSON body
+///
+/// returns: HttpResponse<BoxBody>
+///
 #[post("/api/v1/users/create")]
 pub async fn create_user(pool: Data<PgPool>, request: Json<CreateUserRequest>) -> HttpResponse {
     let repository = Repository::new(pool.get_ref().clone());
@@ -35,6 +44,15 @@ pub async fn create_user(pool: Data<PgPool>, request: Json<CreateUserRequest>) -
     }
 }
 
+///
+/// POST request to log in. Does not require auth token
+/// # Arguments
+///
+/// * `pool`: PostgreSQL pool
+/// * `request`: JSON login body
+///
+/// returns: HttpResponse<BoxBody>
+///
 #[post("/api/v1/login")]
 pub async fn login(pool: Data<PgPool>, request: Json<LoginRequest>) -> HttpResponse {
     let repository = Repository::new(pool.get_ref().clone());
