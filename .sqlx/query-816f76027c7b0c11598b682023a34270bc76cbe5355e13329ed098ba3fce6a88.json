@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM currencies",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "currency_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "currency_code",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "816f76027c7b0c11598b682023a34270bc76cbe5355e13329ed098ba3fce6a88"
+}

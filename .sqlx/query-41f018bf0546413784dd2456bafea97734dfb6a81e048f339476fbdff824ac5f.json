@@ -1,0 +1,70 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO buy_orders(issuer_id, buy_currency_amount, buy_currency_id, sell_currency_id, created_at, updated_at, expires_at)\n            VALUES ($1, $2, $3, $4, $5, $6, $7)\n            RETURNING buy_order_id, issuer_id, buy_currency_amount, buy_currency_id, sell_currency_id, created_at, updated_at, expires_at",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "buy_order_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "issuer_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "buy_currency_amount",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "buy_currency_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "sell_currency_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "41f018bf0546413784dd2456bafea97734dfb6a81e048f339476fbdff824ac5f"
+}
