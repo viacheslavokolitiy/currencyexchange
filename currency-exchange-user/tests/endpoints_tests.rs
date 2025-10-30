@@ -1,13 +1,13 @@
 use actix_web::{test, web, App};
 use actix_web::web::Data;
 use fake::{Dummy, Fake, Faker};
-use currency_exchange_admin::post_handlers::{add_currency_to_wallet, create_currency, create_wallet};
-use currency_exchange_admin::server::AdminEnv;
 use currency_exchange_data::datasource::api_models::{AddCurrencyRequest, CreateCurrencyRequest, CreateWalletRequest};
 use currency_exchange_middleware::database_connector::DatabaseConnector;
 use currency_exchange_middleware::env_parser::{EnvParser, MiddlewareEnv};
 use currency_exchange_middleware::jwt::get_token;
 use currency_exchange_middleware::middleware::JwtMiddleware;
+use currency_exchange_user::post_handlers::create_currency;
+use currency_exchange_user::server::UserEnv;
 
 #[actix_web::test]
 async fn create_currency_must_succeed() {
@@ -15,7 +15,7 @@ async fn create_currency_must_succeed() {
     let req = CreateCurrencyRequest {
         currency_code: dummy_request.currency_code.chars().take(3).collect(),
     };
-    let parser = AdminEnv::new();
+    let parser = UserEnv::new();
     let connector = DatabaseConnector::new(
         parser.database_url(),
         parser.max_connections()

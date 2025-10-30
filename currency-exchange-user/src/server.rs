@@ -16,19 +16,19 @@ const ENV_HOST: &str = "SERVER_HOST";
 
 const ENV_PORT: &str = "SERVER_PORT";
 
-pub struct AdminEnv {
+pub struct UserEnv {
     env: PathBuf
 }
 
-impl AdminEnv {
+impl UserEnv {
     pub fn new() -> Self {
         Self {
-            env: dotenvy::from_filename("./currency-exchange-admin/.env").expect("Failed to load .env file!")
+            env: dotenvy::from_filename("./currency-exchange-user/.env").expect("Failed to load .env file!")
         }
     }
 }
 
-impl EnvParser for AdminEnv {
+impl EnvParser for UserEnv {
     fn database_url(&self) -> String {
         env::var(ENV_DATABASE_URL).expect("DATABASE_URL must be set")
     }
@@ -48,11 +48,11 @@ impl EnvParser for AdminEnv {
 }
 
 pub struct Server {
-    env_parser: AdminEnv,
+    env_parser: UserEnv,
 }
 
 impl Server {
-    pub fn new(env_parser: AdminEnv) -> Self {
+    pub fn new(env_parser: UserEnv) -> Self {
         Self { env_parser }
     }
 

@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
-    "currency-exchange-admin",
+    "currency-exchange-user",
     "currency-exchange-auth",
     "currency-exchange-client",
     "currency-exchange-data",

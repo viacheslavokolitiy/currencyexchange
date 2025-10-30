@@ -145,6 +145,13 @@ pub struct SellCurrencyArgs {
     pub auth_token: String,
 }
 
+#[derive(Parser, Serialize, Clone, Debug)]
+#[command(version, about, long_about = None)]
+pub struct ListCurrenciesArgs {
+    #[arg(long)]
+    pub auth_token: String
+}
+
 #[derive(Subcommand)]
 pub enum UserCommands {
     Create {
@@ -195,7 +202,10 @@ pub enum ApiCommands {
         #[command(flatten)]
         args: SellCurrencyArgs
     },
-    ListCurrencies
+    ListCurrencies {
+        #[command(flatten)]
+        args: ListCurrenciesArgs
+    }
 }
 
 #[derive(Parser)]

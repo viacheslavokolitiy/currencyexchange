@@ -19,7 +19,7 @@ pub struct User {
     pub updated_at: Option<OffsetDateTime>,
 }
 
-#[derive(Serialize, Deserialize, FromRow, Clone)]
+#[derive(Serialize, Deserialize, FromRow, Clone, Debug)]
 pub struct Currency {
     pub currency_id: Option<i32>,
     pub currency_code: Option<String>,
