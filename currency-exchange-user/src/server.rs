@@ -80,7 +80,7 @@ impl Server {
             .service(
                 web::resource("/api/v1/wallet/currencies/add")
                     .wrap(JwtMiddleware)
-                    .route(web::post().to(add_currency_to_wallet))
+                    .route(web::put().to(add_currency_to_wallet))
             )
             .service(
                 web::resource("/api/v1/currencies")

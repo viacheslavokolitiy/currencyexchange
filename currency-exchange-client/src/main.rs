@@ -1,4 +1,4 @@
-use crate::client_methods::{create_new_currency, create_new_wallet, create_user, display_currencies, login_user};
+use crate::client_methods::{add_currency_to_wallet, create_new_currency, create_new_wallet, create_user, display_currencies, login_user};
 use clap::Parser;
 use currency_exchange_client::client::{ApiCommands, CliCommands, UserCommands};
 
@@ -8,6 +8,7 @@ mod api_endpoints {
     pub const CURRENCY_LIST: &str = "/api/v1/currencies";
     pub const CREATE_CURRENCY: &str = "/api/v1/currencies/create";
     pub const CREATE_WALLET: &str = "/api/v1/wallet/create";
+    pub const ADD_CURRENCY: &str = "/api/v1/wallet/currencies/add";
 }
 
 mod url_builder {
@@ -37,12 +38,12 @@ mod password_encoder {
 }
 
 mod client_methods {
-    use crate::api_endpoints::{CREATE_CURRENCY, CREATE_WALLET, CURRENCY_LIST, LOGIN, SIGNUP};
+    use crate::api_endpoints::{ADD_CURRENCY, CREATE_CURRENCY, CREATE_WALLET, CURRENCY_LIST, LOGIN, SIGNUP};
     use crate::password_encoder::encode_password;
     use crate::url_builder::{build_user_api_base_url, build_login_base_url};
-    use currency_exchange_client::client::{CreateCurrencyArgs, CreateUserArgs, CreateWalletArgs, ListCurrenciesArgs, LoginUserArgs};
+    use currency_exchange_client::client::{AddCurrencyArgs, CreateCurrencyArgs, CreateUserArgs, CreateWalletArgs, ListCurrenciesArgs, LoginUserArgs};
     use currency_exchange_client::client_env_parser::ClientEnvParser;
-    use currency_exchange_data::datasource::api_models::{CreateCurrencyRequest, CreateUserRequest, CreateUserResponse, CreateWalletRequest, LoginRequest};
+    use currency_exchange_data::datasource::api_models::{AddCurrencyRequest, CreateCurrencyRequest, CreateUserRequest, CreateUserResponse, CreateWalletRequest, LoginRequest};
     use reqwest::Client;
     use currency_exchange_data::datasource::models::{Currency, Wallet};
 
@@ -152,6 +153,31 @@ mod client_methods {
             println!("Failed to create wallet {:?}", wallet_response);
         }
     }
+    
+    pub async fn add_currency_to_wallet(args: AddCurrencyArgs) {
+        let user_id = args.user_id;
+        let currency_id = args.currency_id;
+        let token = args.auth_token;
+        let network_client = Client::new();
+        let parser = ClientEnvParser::new();
+        let add_currency_req = AddCurrencyRequest::new(
+            user_id,
+            currency_id,
+        );
+        let add_currency_res = network_client.put(format!("{}://{}{}", parser.parse_link_host(), build_user_api_base_url(&parser), ADD_CURRENCY))
+            .header("Authorization", format!("Bearer {}", token))
+            .json(&add_currency_req)
+            .send()
+            .await;
+        if add_currency_res.is_ok() { 
+            let json = add_currency_res.unwrap().json::<Wallet>().await;
+            if json.is_ok() {
+                println!("{:?}", json.unwrap());
+            } 
+        } else {
+            println!("Failed to add currency to {:?}", add_currency_res);
+        }
+    }
 }
 
 fn main() {
@@ -176,6 +202,9 @@ fn main() {
                 }
                 ApiCommands::CreateWallet {args} => {
                     create_new_wallet(args).await;
+                }
+                ApiCommands::AddCurrencyForWallet {args} => {
+                    add_currency_to_wallet(args).await;
                 }
                 _ => {}
             }
