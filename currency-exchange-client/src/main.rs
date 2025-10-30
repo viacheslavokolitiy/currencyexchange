@@ -1,4 +1,4 @@
-use crate::client_methods::{add_currency_to_wallet, create_new_currency, create_new_wallet, create_user, display_buy_orders, display_currencies, display_sell_orders, login_user};
+use crate::client_methods::{add_currency_to_wallet, create_buy_order, create_new_currency, create_new_wallet, create_sell_order, create_user, display_buy_orders, display_currencies, display_sell_orders, login_user};
 use clap::Parser;
 use currency_exchange_client::client::{ApiCommands, CliCommands, UserCommands};
 
@@ -11,6 +11,8 @@ mod api_endpoints {
     pub const ADD_CURRENCY: &str = "/api/v1/wallet/currencies/add";
     pub const BUY_ORDERS: &str = "/api/v1/orders/buy";
     pub const SELL_ORDERS: &str = "/api/v1/orders/sell";
+    pub const CREATE_BUY_ORDER: &str = "/api/v1/orders/buy/new";
+    pub const CREATE_SELL_ORDER: &str = "/api/v1/orders/sell/new";
 }
 
 mod url_builder {
@@ -46,12 +48,12 @@ mod password_encoder {
 }
 
 mod client_methods {
-    use crate::api_endpoints::{ADD_CURRENCY, BUY_ORDERS, CREATE_CURRENCY, CREATE_WALLET, CURRENCY_LIST, LOGIN, SELL_ORDERS, SIGNUP};
+    use crate::api_endpoints::{ADD_CURRENCY, BUY_ORDERS, CREATE_BUY_ORDER, CREATE_CURRENCY, CREATE_SELL_ORDER, CREATE_WALLET, CURRENCY_LIST, LOGIN, SELL_ORDERS, SIGNUP};
     use crate::password_encoder::encode_password;
     use crate::url_builder::{build_user_api_base_url, build_login_base_url, build_orders_api_base_url};
-    use currency_exchange_client::client::{AddCurrencyArgs, CreateCurrencyArgs, CreateUserArgs, CreateWalletArgs, ListCurrenciesArgs, LoginUserArgs, ShowBuyOrdersArgs, ShowSellOrdersArgs};
+    use currency_exchange_client::client::{AddCurrencyArgs, CreateBuyOrderArgs, CreateCurrencyArgs, CreateSellOrderArgs, CreateUserArgs, CreateWalletArgs, ListCurrenciesArgs, LoginUserArgs, ShowBuyOrdersArgs, ShowSellOrdersArgs};
     use currency_exchange_client::client_env_parser::ClientEnvParser;
-    use currency_exchange_data::datasource::api_models::{AddCurrencyRequest, CreateCurrencyRequest, CreateUserRequest, CreateUserResponse, CreateWalletRequest, LoginRequest};
+    use currency_exchange_data::datasource::api_models::{AddCurrencyRequest, CreateBuyOrderRequest, CreateCurrencyRequest, CreateSellOrderRequest, CreateUserRequest, CreateUserResponse, CreateWalletRequest, LoginRequest};
     use reqwest::Client;
     use currency_exchange_data::datasource::models::{BuyOrder, Currency, SellOrder, Wallet};
 
@@ -208,7 +210,7 @@ mod client_methods {
             println!("Failed to find buy orders {:?}", res);
         }
     }
-    
+
     pub async fn display_sell_orders(args: ShowSellOrdersArgs) {
         let orders_limit = args.orders;
         let token = args.auth_token;
@@ -228,6 +230,72 @@ mod client_methods {
             }
         } else {
             println!("Failed to find buy orders {:?}", res);
+        }
+    }
+
+    pub async fn create_buy_order(args: CreateBuyOrderArgs) {
+        let user_id = args.issuer_id;
+        let buy_amount = args.buy_amount;
+        let buy_currency_id = args.buy_currency_id;
+        let sell_currency_id = args.sell_currency_id;
+        let expiry_days = args.expiry_days;
+        let token = args.auth_token;
+        let parser = ClientEnvParser::new();
+        let client = Client::new();
+
+        let create_buy_order_req = CreateBuyOrderRequest::new(
+            user_id,
+            buy_amount,
+            buy_currency_id,
+            sell_currency_id,
+            expiry_days,
+        );
+        let url = format!("{}://{}{}", parser.parse_link_host(), build_orders_api_base_url(&parser), CREATE_BUY_ORDER);
+        let res = client.post(url)
+            .header("Authorization", format!("Bearer {}", token))
+            .json(&create_buy_order_req)
+            .send()
+            .await;
+        if res.is_ok() {
+            let json = res.unwrap().json::<BuyOrder>().await;
+            if json.is_ok() {
+                println!("{:?}", json.unwrap());
+            }
+        } else {
+            println!("Failed to create buy order {:?}", res);
+        }
+    }
+    
+    pub async fn create_sell_order(args: CreateSellOrderArgs) {
+        let user_id = args.issuer_id;
+        let sell_amount = args.sell_amount;
+        let buy_currency_id = args.buy_currency_id;
+        let sell_currency_id = args.sell_currency_id;
+        let expiry_days = args.expiry_days;
+        let token = args.auth_token;
+        let parser = ClientEnvParser::new();
+        let client = Client::new();
+
+        let create_buy_order_req = CreateSellOrderRequest::new(
+            user_id,
+            sell_amount,
+            buy_currency_id,
+            sell_currency_id,
+            expiry_days,
+        );
+        let url = format!("{}://{}{}", parser.parse_link_host(), build_orders_api_base_url(&parser), CREATE_SELL_ORDER);
+        let res = client.post(url)
+            .header("Authorization", format!("Bearer {}", token))
+            .json(&create_buy_order_req)
+            .send()
+            .await;
+        if res.is_ok() {
+            let json = res.unwrap().json::<SellOrder>().await;
+            if json.is_ok() {
+                println!("{:?}", json.unwrap());
+            }
+        } else {
+            println!("Failed to create buy order {:?}", res);
         }
     }
 }
@@ -263,6 +331,12 @@ fn main() {
                 }
                 ApiCommands::SellOrders {args} => {
                     display_sell_orders(args).await;
+                }
+                ApiCommands::CreateBuyOrder {args} => {
+                    create_buy_order(args).await;
+                }
+                ApiCommands::CreateSellOrder {args} => {
+                    create_sell_order(args).await;
                 }
                 _ => {}
             }

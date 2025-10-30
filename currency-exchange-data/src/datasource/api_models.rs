@@ -189,3 +189,39 @@ impl AddCurrencyRequest {
         }
     }
 }
+
+impl CreateBuyOrderRequest {
+    pub fn new<I: Into<i32>>(
+        issuer_id: I,
+        buy_amount: I,
+        buy_currency_id: I,
+        sell_currency_id: I,
+        expiry_days: I
+    ) -> Self {
+        Self {
+            issuer_id: issuer_id.into(),
+            buy_amount: buy_amount.into(),
+            buy_currency_id: buy_currency_id.into(),
+            sell_currency_id: sell_currency_id.into(),
+            expiry_days: expiry_days.into()
+        }
+    }
+}
+
+impl CreateSellOrderRequest {
+    pub fn new<I: Into<i32>>(
+        issuer_id: I,
+        sell_amount: I,
+        sell_currency_id: I,
+        buy_currency_id: I,
+        expiry_days: I
+    ) -> Self {
+        Self {
+            issuer_id: issuer_id.into(),
+            sell_amount: sell_amount.into(),
+            sell_currency_id: sell_currency_id.into(),
+            buy_currency_id: buy_currency_id.into(),
+            expiry_days: expiry_days.into()
+        }
+    }
+}

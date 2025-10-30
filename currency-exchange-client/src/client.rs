@@ -91,7 +91,7 @@ pub struct CreateBuyOrderArgs {
     #[arg(long)]
     pub expiry_days: i32,
     #[arg(long)]
-    auth_token: String,
+    pub auth_token: String,
 }
 
 #[derive(Parser, Serialize, Clone, Debug)]
@@ -108,7 +108,7 @@ pub struct CreateSellOrderArgs {
     #[arg(long)]
     pub expiry_days: i32,
     #[arg(long)]
-    auth_token: String,
+    pub auth_token: String,
 }
 
 #[derive(Parser, Serialize, Clone, Debug)]
