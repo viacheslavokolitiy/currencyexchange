@@ -18,7 +18,7 @@ pub struct LoginRequest {
     pub password: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct CreatedUser {
     pub id: i32,
     username: String,
@@ -30,7 +30,7 @@ pub struct CreatedUser {
     updated_at: Option<OffsetDateTime>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct CreateUserResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     error_message: Option<String>,
@@ -107,6 +107,35 @@ impl CreateUserResponse {
             error_message: message,
             user,
             token,
+        }
+    }
+}
+
+impl LoginRequest {
+    pub fn new(username: String, password: String) -> Self {
+        Self {
+            username,
+            password,
+        }
+    }
+}
+
+impl CreateUserRequest {
+    pub fn new(
+        username: String,
+        email: String,
+        password: String,
+        firstname: String,
+        middlename: Option<String>,
+        lastname: String
+    ) -> Self {
+        Self {
+            username,
+            email,
+            password,
+            firstname,
+            middlename,
+            lastname
         }
     }
 }

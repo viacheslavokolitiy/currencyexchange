@@ -1,6 +1,9 @@
 use crate::model_mapper::map_user_to_network_model;
 use actix_web::web::{Data, Json};
 use actix_web::{post, HttpResponse, Responder};
+use argon2::Config;
+use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
 use currency_exchange_data::datasource::api_models::{CreateUserRequest, CreateUserResponse, LoginRequest};
 use currency_exchange_data::datasource::repository::repository::Repository;
 use currency_exchange_data::datasource::repository::user_repository::UserRepository;
@@ -40,9 +43,13 @@ pub async fn login(pool: Data<PgPool>, request: Json<LoginRequest>) -> HttpRespo
         .await
         .expect("Error finding user");
     if user_option.is_some() {
+        let config = Config::default();
+        let salt = b"saltsaltsalt";
+        let hash = argon2::hash_encoded(request.0.password.as_bytes(), salt, &config).unwrap();
         let user = user_option.unwrap();
         let user_pwd = user.password;
-        if user_pwd == request.0.password {
+        let matches = argon2::verify_encoded(&hash, user_pwd.as_bytes()).unwrap();
+        if matches {
             let id = user.user_id;
             let token = get_token(&id, &parser).expect("Unable to create token");
             HttpResponse::Created().json(Json(token))

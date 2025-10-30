@@ -1,6 +1,100 @@
+use crate::client_methods::{create_user, login_user};
 use clap::Parser;
-use currency_exchange_client::client::CliCommands;
+use currency_exchange_client::client::{CliCommands, UserCommands};
+
+mod api_endpoints {
+    pub const LOGIN: &str = "/api/v1/login";
+    pub const SIGNUP: &str = "/api/v1/users/create";
+}
+
+mod url_builder {
+    use currency_exchange_client::client_env_parser::ClientEnvParser;
+    pub fn build_login_base_url(parser: &ClientEnvParser) -> String {
+        let host = parser.parse_login_host();
+        let port = parser.parse_login_host_port();
+        format!("{host}:{port}")
+    }
+}
+
+mod password_encoder {
+    use argon2::Config;
+
+    pub fn encode_password(pwd: &str) -> String {
+        let config = Config::default();
+        let salt = b"saltsaltsalt";
+        let hash = argon2::hash_encoded(pwd.as_bytes(), salt, &config).unwrap();
+        hash
+    }
+}
+
+mod client_methods {
+    use crate::api_endpoints::{LOGIN, SIGNUP};
+    use crate::password_encoder::encode_password;
+    use crate::url_builder::build_login_base_url;
+    use currency_exchange_client::client::{CreateUserArgs, LoginUserArgs};
+    use currency_exchange_client::client_env_parser::ClientEnvParser;
+    use currency_exchange_data::datasource::api_models::{CreateUserRequest, CreateUserResponse, LoginRequest};
+    use reqwest::Client;
+
+    pub async fn login_user(args: LoginUserArgs) {
+        let network_client = Client::new();
+        let parser = ClientEnvParser::new();
+        let login_request = LoginRequest::new(
+            args.username,
+            encode_password(args.password.as_str())
+        );
+        let res = network_client.post(format!("{}://{}{}", parser.parse_link_host(), build_login_base_url(&parser), LOGIN))
+            .json(&login_request)
+            .send()
+            .await;
+        if res.is_ok() {
+            let resp = res.unwrap().json::<String>().await;
+            println!("Your token {}", resp.unwrap());
+        } else {
+            println!("Failed to login {}", res.err().unwrap());
+        }
+    }
+
+    pub async fn create_user(args: CreateUserArgs) {
+        let network_client = Client::new();
+        let parser = ClientEnvParser::new();
+        let signup_request = CreateUserRequest::new(
+            args.username,
+            args.email,
+            encode_password(args.password.as_str()),
+            args.firstname,
+            Some(args.middlename),
+            args.lastname,
+        );
+        let res = network_client.post(format!("{}://{}{}", parser.parse_link_host(), build_login_base_url(&parser), SIGNUP))
+            .json(&signup_request)
+            .send()
+            .await;
+        if res.is_ok() {
+            let json = res.unwrap().json::<CreateUserResponse>().await;
+            println!("User created successfully {:?}", json.unwrap());
+        } else {
+            println!("Failed to create user {:?}", res);
+        }
+    }
+}
 
 fn main() {
     let cli = CliCommands::parse();
+    let runtime = tokio::runtime::Runtime::new().unwrap();
+    runtime.block_on(async move {
+        match cli {
+            CliCommands::Users { command } => match command {
+                UserCommands::Create {args} => {
+                    create_user(args).await;
+                }
+                UserCommands::Login {args} => {
+                    login_user(args).await;
+                }
+            }
+            CliCommands::Api { command } => {
+
+            }
+        }
+    })
 }
