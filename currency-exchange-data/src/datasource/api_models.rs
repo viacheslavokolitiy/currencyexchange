@@ -73,7 +73,6 @@ pub struct CreateBuyOrderRequest {
     pub expiry_days: i32,
 }
 #[derive(Serialize, Deserialize)]
-#[serde_as]
 pub struct CreateSellOrderRequest {
     pub issuer_id: i32,
     pub sell_amount: i32,

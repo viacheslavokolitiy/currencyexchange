@@ -7,4 +7,4 @@ members = [
     "currency-exchange-data",
     "currency-exchange-middleware",
     "currency-exchange-orders"
-]
+, "currency-exchange-swagger"]

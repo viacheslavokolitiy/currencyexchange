@@ -17,6 +17,7 @@ thiserror = "2.0.17"
 async-trait = "0.1.89"
 currency-exchange-middleware = { version = "0.1.0", path = "../currency-exchange-middleware"}
 currency-exchange-data = { version = "0.1.0", path = "../currency-exchange-data" }
+actix-cors = "0.7.1"
 
 [[bin]]
 name = "bidder"

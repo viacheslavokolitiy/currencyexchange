@@ -1,6 +1,7 @@
 use std::env;
 use std::net::TcpListener;
 use std::path::PathBuf;
+use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 use actix_web::web::Data;
 use currency_exchange_middleware::database_connector::DatabaseConnector;
@@ -74,6 +75,7 @@ impl Server {
         HttpServer::new(move || App::new()
             .app_data(Data::new(pool.clone()))
             .wrap(NetworkLogSpanBuilder::new().middleware().clone())
+            .wrap(Cors::permissive())
             .service(
                 web::resource(GET_BUY_ORDERS)
                     .wrap(JwtMiddleware)

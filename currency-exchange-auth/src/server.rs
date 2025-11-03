@@ -5,6 +5,7 @@ use currency_exchange_middleware::database_connector::DatabaseConnector;
 use currency_exchange_middleware::env_parser::{JwtEnvParser, MiddlewareEnv};
 use currency_exchange_middleware::tracing_middleware::NetworkLogSpanBuilder;
 use std::net::TcpListener;
+use actix_cors::Cors;
 
 pub struct Server {
     env_parser: MiddlewareEnv,
@@ -29,6 +30,7 @@ impl Server {
         env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
         HttpServer::new(move || App::new()
             .app_data(Data::new(pool.clone()))
+            .wrap(Cors::permissive())
             .wrap(NetworkLogSpanBuilder::new().middleware().clone())
             .service(create_user)
             .service(login))

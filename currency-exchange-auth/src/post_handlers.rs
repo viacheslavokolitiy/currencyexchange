@@ -70,7 +70,7 @@ pub async fn login(pool: Data<PgPool>, request: Json<LoginRequest>) -> HttpRespo
         if matches {
             let id = user.user_id;
             let token = get_token(&id, &parser).expect("Unable to create token");
-            HttpResponse::Created().json(Json(token))
+            HttpResponse::Ok().json(Json(token))
         } else {
             HttpResponse::BadRequest().json(Json("Invalid username/password".to_string()))
         }
