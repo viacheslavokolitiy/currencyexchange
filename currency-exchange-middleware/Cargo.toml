@@ -1,0 +1,15 @@
+[package]
+name = "currency-exchange-middleware"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+jsonwebtoken = { version = "10.0.0", features = ["rust_crypto"] }
+actix-web = "4.11.0"
+actix-jwt-auth-middleware = "0.5.0"
+serde = { version = "1.0.228", features = ["derive"] }
+dotenvy = "0.15.7"
+time = { version = "0.3.44", features = ["serde", "serde-human-readable"] }
+sqlx = { version = "0.8.6", features = ["time", "postgres", "sqlx-postgres", "tls-rustls", "runtime-tokio"] }
+tracing = "0.1.41"
+tracing-actix-web = "0.7.19"

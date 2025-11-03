@@ -1,0 +1,26 @@
+[package]
+name = "currency-exchange-swagger"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+currency-exchange-data = {version = "0.1.0", path = "../currency-exchange-data"}
+currency-exchange-middleware = { version = "0.1.0", path = "../currency-exchange-middleware"}
+reqwest = { version = "0.12.24", features = ["json"] }
+dotenvy = "0.15.7"
+utoipa-actix-web = "0.1.2"
+utoipa-swagger-ui = { version = "9.0.2", features = ["actix-web", "reqwest"] }
+utoipa = { version = "5.4.0", features = ["actix_extras"] }
+serde = { version = "1.0.228", features = ["derive"] }
+actix-web = { version = "4.11.0"}
+env_logger = "0.11.8"
+serde_with = "3.15.1"
+time = "0.3.44"
+tracing = "0.1.41"
+log = "0.4.28"
+actix-cors = "0.7.1"
+rust-argon2 = "3.0"
+
+[[bin]]
+name = "swagger"
+path = "src/main.rs"

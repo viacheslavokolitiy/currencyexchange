@@ -1,0 +1,25 @@
+use currency_exchange_data::datasource::api_models::CreatedUser;
+use currency_exchange_data::datasource::models::User;
+
+/// 
+/// Maps db model to network model to avoid password leaks
+/// # Arguments 
+/// 
+/// * `db_user`: database user
+/// 
+/// returns: CreatedUser that is network model
+///
+pub fn map_user_to_network_model(
+    db_user: &User,
+) -> CreatedUser {
+    CreatedUser::new(
+        db_user.user_id,
+        db_user.username.clone(),
+        db_user.email.clone(),
+        db_user.firstname.clone(),
+        db_user.middlename.clone(),
+        db_user.lastname.clone(),
+        db_user.created_at,
+        db_user.updated_at
+    )
+}
