@@ -16,6 +16,7 @@ impl DatabaseConnector {
 
     ///
     /// Connects to database and returns PgPool if success
+    ///
     pub async fn connect(&self) -> PgPool {
         PgPoolOptions::new()
             .max_connections(self.max_connections)

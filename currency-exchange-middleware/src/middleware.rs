@@ -1,4 +1,3 @@
-use crate::env_parser::{JwtEnvParser, MiddlewareEnv};
 use crate::jwt::Claims;
 use actix_web::body::BoxBody;
 use actix_web::dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform};
@@ -8,6 +7,7 @@ use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use std::future::{ready, Ready};
 use std::pin::Pin;
 use std::rc::Rc;
+use crate::env_parser::EnvParser;
 
 pub struct JwtMiddleware;
 pub struct JwtMiddlewareService<S> {
@@ -46,7 +46,7 @@ where
     forward_ready!(service);
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        let parser = MiddlewareEnv::new();
+        let parser = EnvParser::new();
         let srv = self.service.clone();
         Box::pin(async move {
             let auth_header = req.headers().get("Authorization");
