@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT w.wallet_id, c.currency_id, c.currency_code FROM wallets AS w\n            JOIN currencies as c ON w.currency_id = c.currency_id\n            WHERE w.user_id = $1 AND c.currency_id = $2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "wallet_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "currency_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "currency_code",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "3210474d94547c6824903aef0fd986a44467f114e101ef1e412f536ee727559c"
+}

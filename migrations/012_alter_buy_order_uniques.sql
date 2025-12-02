@@ -1,0 +1,3 @@
+ALTER TABLE buy_orders
+DROP CONSTRAINT buy_orders_buy_currency_id_key,
+DROP CONSTRAINT buy_orders_sell_currency_id_key;

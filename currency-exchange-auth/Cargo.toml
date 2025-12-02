@@ -1,0 +1,24 @@
+[package]
+name = "currency-exchange-auth"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+actix-web = "4.11.0"
+time = { version = "0.3.44", features = ["serde", "serde-human-readable"] }
+sqlx = { version = "0.8.6", features = ["time", "postgres", "sqlx-postgres", "tls-rustls", "runtime-tokio"] }
+tracing = "0.1.41"
+env_logger = "0.11.8"
+currency-exchange-middleware = {version = "0.1.0", path = "../currency-exchange-middleware"}
+currency-exchange-data = { version = "0.1.0", path = "../currency-exchange-data" }
+rust-argon2 = "3.0.0"
+rand = "0.8.5"
+rand_distr = "0.4"
+actix-cors = "0.7.1"
+
+[dev-dependencies]
+fake = { version = "4.4.0", features = ["derive"] }
+
+[[bin]]
+name = "authserver"
+path = "src/main.rs"

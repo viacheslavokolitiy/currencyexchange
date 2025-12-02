@@ -1,0 +1,22 @@
+[package]
+name = "currency-exchange-user"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+dotenvy = "0.15.7"
+env_logger = "0.11.8"
+actix-web = "4.11.0"
+sqlx = { version = "0.8.6", features = ["time", "postgres", "sqlx-postgres", "tls-rustls", "runtime-tokio"] }
+currency-exchange-middleware = { version = "0.1.0", path = "../currency-exchange-middleware"}
+currency-exchange-data = { version = "0.1.0", path = "../currency-exchange-data" }
+rand = "0.9.2"
+tracing = "0.1.41"
+time = { version = "0.3.44", features = ["serde","serde-human-readable"] }
+
+[dev-dependencies]
+fake = { version = "4.4.0", features = ["derive"] }
+
+[[bin]]
+name = "user"
+path = "src/main.rs"
