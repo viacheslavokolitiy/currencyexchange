@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO currencies(currency_code) VALUES ($1) RETURNING *",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "currency_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "currency_code",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "aefc87d8c8354e32d095b6a0bbfdc70f9d918dc24a5cb62bcf84603bb94da219"
+}
