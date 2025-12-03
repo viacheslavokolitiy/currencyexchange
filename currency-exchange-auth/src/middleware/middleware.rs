@@ -1,4 +1,3 @@
-use crate::jwt::Claims;
 use actix_web::body::BoxBody;
 use actix_web::dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform};
 use actix_web::{error, get, Error, HttpMessage, HttpRequest, HttpResponse, Responder};
@@ -8,6 +7,7 @@ use std::future::{ready, Ready};
 use std::pin::Pin;
 use std::rc::Rc;
 use crate::env_parser::EnvParser;
+use crate::middleware::jwt::Claims;
 
 pub struct JwtMiddleware;
 pub struct JwtMiddlewareService<S> {
