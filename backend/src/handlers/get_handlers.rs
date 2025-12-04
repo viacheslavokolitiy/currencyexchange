@@ -1,9 +1,11 @@
 use crate::datasource::currency_repository::CurrencyRepository;
 use crate::datasource::user_repository::UserRepository;
+use crate::datasource::wallet_repository::WalletRepository;
+use crate::middleware::jwt::Claims;
 use crate::models::auth_responses::success_responses::{UsernameAlreadyTaken, UsernameAvailable};
-use crate::models::{CurrencyByCodeParams, UsernameCheckParams};
+use crate::models::{CurrencyByCodeParams, UsernameCheckParams, WalletByCurrencyCodeParams};
 use crate::repository::Repository;
-use actix_web::web::{Data, Query};
+use actix_web::web::{Data, Query, ReqData};
 use actix_web::{get, HttpResponse};
 use sqlx::PgPool;
 
@@ -40,4 +42,18 @@ pub async fn get_all_currencies(
         .await
         .expect("Error fetching currencies");
     HttpResponse::Ok().json(currencies)
+}
+
+pub async fn find_wallet(
+    claims: ReqData<Claims>,
+    pool: Data<PgPool>,
+    query: Query<WalletByCurrencyCodeParams>
+) -> HttpResponse {
+    let repo = Repository::new(pool.as_ref().clone());
+    let code = &query.code;
+    let uid = claims.sub.parse::<i32>().unwrap();
+    let check_wallet = repo.check_if_wallet_exists(&uid, code)
+        .await
+        .expect("Error checking if wallet exists");
+    HttpResponse::Ok().json(check_wallet)
 }

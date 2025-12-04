@@ -1,14 +1,15 @@
 use crate::datasource::currency_repository::CurrencyRepository;
 use crate::datasource::user_repository::UserRepository;
 use crate::env_parser::EnvParser;
-use crate::middleware::jwt::get_token;
+use crate::middleware::jwt::{get_token, Claims};
 use crate::models::auth_responses::error_responses::UserNotFound;
 use crate::models::auth_responses::success_responses::LoggedInUser;
-use crate::models::{CreateCurrencyRequest, CreateUserRequest, LoginUserRequest};
+use crate::models::{CreateCurrencyRequest, CreateUserRequest, CreateWalletRequest, LoginUserRequest};
 use crate::repository::Repository;
-use actix_web::web::{Data, Json};
+use actix_web::web::{Data, Json, ReqData};
 use actix_web::{post, HttpResponse};
 use sqlx::PgPool;
+use crate::datasource::wallet_repository::WalletRepository;
 
 #[post("/api/v1/user/create")]
 pub async fn create_user(pool: Data<PgPool>, request: Json<CreateUserRequest>) -> HttpResponse {
@@ -59,4 +60,18 @@ pub async fn create_currency(
         .await
         .expect("Error creating currency");
     HttpResponse::Created().json(query)
+}
+
+pub async fn create_wallet(
+    claims: ReqData<Claims>,
+    pool: Data<PgPool>,
+    req: Json<CreateWalletRequest>,
+) -> HttpResponse {
+    let repository = Repository::new(pool.get_ref().clone());
+    let uid = claims.sub.parse::<i32>().unwrap();
+    let currency = req.0.currency_code;
+    let wallet = repository.create_wallet(&uid, &currency)
+        .await
+        .expect("Error creating wallet");
+    HttpResponse::Created().json(wallet)
 }

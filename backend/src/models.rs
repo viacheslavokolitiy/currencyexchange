@@ -45,6 +45,11 @@ pub struct LoginUserRequest {
     pub password: String,
 }
 
+#[derive(Deserialize)]
+pub struct CreateWalletRequest {
+    pub currency_code: String,
+}
+
 #[derive(Serialize, Deserialize)]
 #[serde_as]
 pub struct CreateUserResponse {
@@ -81,6 +86,11 @@ pub struct UsernameCheckParams {
 
 #[derive(Deserialize)]
 pub struct CurrencyByCodeParams {
+    pub code: String
+}
+
+#[derive(Deserialize)]
+pub struct WalletByCurrencyCodeParams {
     pub code: String
 }
 

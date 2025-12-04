@@ -141,20 +141,13 @@ impl WalletRepository for Repository {
         user_id: &i32,
         wallet_currency: &str
     ) -> Result<Option<Wallet>, Box<dyn Error>> {
-
-        let wallet_exists = self.check_if_wallet_exists(user_id, wallet_currency)
-            .await?;
-        if wallet_exists.is_none() {
-            let default_currency_amount:f32 = 0.0;
-            let query = sqlx::query_as!(Wallet,
+        let default_currency_amount:f32 = 0.0;
+        let query = sqlx::query_as!(Wallet,
                 "INSERT INTO wallets(currency_amount, currency_code, user_id)
                  VALUES ($1, $2, $3) RETURNING * ", default_currency_amount, wallet_currency, user_id)
-                .fetch_optional(&self.pool)
-                .await?;
-            Ok(query)
-        } else {
-            Err("Wallet with currency code already exists".into())
-        }
+            .fetch_optional(&self.pool)
+            .await?;
+        Ok(query)
     }
 }
 

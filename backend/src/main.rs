@@ -2,8 +2,8 @@ use actix_web::web::Data;
 use actix_web::{web, App, HttpServer};
 use backend::database_connector::DatabaseConnector;
 use backend::env_parser::EnvParser;
-use backend::handlers::get_handlers::{get_all_currencies, get_currency_by_code, is_username_taken};
-use backend::handlers::post_handlers::{create_currency, create_user, login_user};
+use backend::handlers::get_handlers::{find_wallet, get_all_currencies, get_currency_by_code, is_username_taken};
+use backend::handlers::post_handlers::{create_currency, create_user, create_wallet, login_user};
 use backend::middleware::middleware::JwtMiddleware;
 use backend::middleware::tracing_middleware::NetworkLogSpanBuilder;
 use std::io;
@@ -11,6 +11,8 @@ use std::net::TcpListener;
 pub const FETCH_ALL_CURRENCIES: &str = "/api/v1/currencies";
 pub const FETCH_CURRENCY: &str = "/api/v1/currency";
 pub const CREATE_CURRENCY: &str = "/api/v1/currencies/new";
+pub const FIND_WALLET: &str = "/api/v1/me/wallet";
+pub const CREATE_WALLET: &str = "/api/v1/me/wallet/create";
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
@@ -46,6 +48,14 @@ async fn main() -> io::Result<()> {
             web::resource(CREATE_CURRENCY)
                 .wrap(JwtMiddleware)
                 .route(web::post().to(create_currency))
+        ).service(
+            web::resource(FIND_WALLET)
+                .wrap(JwtMiddleware)
+                .route(web::get().to(find_wallet))
+        ).service(
+            web::resource(CREATE_WALLET)
+                .wrap(JwtMiddleware)
+                .route(web::post().to(create_wallet))
         ))
         .listen(listener)?
         .run()
