@@ -1,12 +1,13 @@
 use actix_web::{post, HttpResponse};
 use actix_web::web::{Data, Json};
 use sqlx::PgPool;
+use crate::datasource::user_repository::UserRepository;
 use crate::env_parser::EnvParser;
 use crate::middleware::jwt::get_token;
 use crate::models::{CreateUserRequest, LoginUserRequest};
 use crate::models::auth_responses::error_responses::UserNotFound;
 use crate::models::auth_responses::success_responses::LoggedInUser;
-use crate::repository::{Repository, UserRepository};
+use crate::repository::{Repository};
 
 #[post("/api/v1/user/create")]
 pub async fn create_user(pool: Data<PgPool>, request: Json<CreateUserRequest>) -> HttpResponse {
@@ -24,7 +25,7 @@ pub async fn create_user(pool: Data<PgPool>, request: Json<CreateUserRequest>) -
 #[post("/api/v1/user/login")]
 pub async fn login_user(pool: Data<PgPool>, json: Json<LoginUserRequest>) -> HttpResponse {
     let repository = Repository::new(pool.get_ref().clone());
-    let user_exists = repository.check_if_exists(&json.username)
+    let user_exists = repository.check_if_user_exists(&json.username)
         .await
         .expect("Unable to check if user exists");
     if user_exists.is_none() {

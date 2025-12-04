@@ -1,36 +1,12 @@
-use crate::models::{CreateUserRequest, CreateUserResponse, DatabaseUser, UserId};
-use argon2::password_hash::SaltString;
+use crate::models::{CreateUserRequest, CreateUserResponse, Currency, DatabaseUser, UserId, Wallet};
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
-use sqlx::testing::TestTermination;
 use sqlx::PgPool;
 use std::error::Error;
-use std::hash::Hash;
+use actix_web::http::header::q;
 use time::OffsetDateTime;
-
-#[async_trait::async_trait]
-pub trait UserRepository {
-    async fn check_if_exists(
-        &self, 
-        username: &str
-    ) -> Result<Option<UserId>, Box<dyn Error>>;
-    
-    async fn create_user(
-        &self, 
-        request: &CreateUserRequest
-    ) -> Result<Option<CreateUserResponse>, Box<dyn Error>>;
-
-    async fn verify_password(&self, user_id: i32, password: &str) -> Result<bool, Box<dyn Error>>;
-
-    async fn hash_password(&self, password: &str) -> Result<String, Box<dyn Error>> {
-        let password_bytes = password.as_bytes();
-        let argon2 = Argon2::default();
-        let salt = SaltString::generate();
-        let hashed = argon2.hash_password(password_bytes, &salt)
-            .unwrap()
-            .to_string();
-        Ok(hashed)
-    }
-}
+use crate::datasource::currency_repository::CurrencyRepository;
+use crate::datasource::user_repository::UserRepository;
+use crate::datasource::wallet_repository::WalletRepository;
 
 pub struct Repository {
     pool: PgPool,
@@ -44,7 +20,7 @@ impl Repository {
 
 #[async_trait::async_trait]
 impl UserRepository for Repository {
-    async fn check_if_exists(
+    async fn check_if_user_exists(
         &self, 
         username: &str
     ) -> Result<Option<UserId>, Box<dyn Error>> {
@@ -97,6 +73,81 @@ impl UserRepository for Repository {
             Ok(verify_result)
         } else {
             Ok(false)
+        }
+    }
+
+    async fn check_if_user_exists_by_id(&self, user_id: &i32) -> Result<Option<UserId>, Box<dyn Error>> {
+        let query = sqlx::query_as!(UserId, "SELECT id FROM users WHERE id = $1;", user_id)
+            .fetch_optional(&self.pool)
+            .await?;
+        if query.is_some() {
+            Ok(query)
+        } else {
+            Ok(None)
+        }
+    }
+}
+
+#[async_trait::async_trait]
+impl CurrencyRepository for Repository {
+    async fn find_currency_by_code(&self, code: &str) -> Result<Option<Currency>, Box<dyn Error>> {
+        let query = sqlx::query_as!(Currency, "SELECT * FROM currencies WHERE currency_code = $1;", code)
+            .fetch_optional(&self.pool)
+            .await?;
+        Ok(query)
+    }
+    async fn create_new_currency(&self, code: &str) -> Result<(), Box<dyn Error>> {
+        let db_currency = self.find_currency_by_code(code).await?;
+        if db_currency.is_none() { 
+            let _query = sqlx::query_as!(Currency, 
+                "INSERT INTO currencies(currency_code) VALUES ($1)", code)
+                .fetch_optional(&self.pool)
+                .await?;
+            Ok(())
+        } else {
+            Err("currency code already exists".into())
+        }
+    }
+}
+
+#[async_trait::async_trait]
+impl WalletRepository for Repository {
+    async fn check_if_wallet_exists(
+        &self, 
+        user_id: &i32, 
+        wallet_currency: &str
+    ) -> Result<Option<Wallet>, Box<dyn Error>> {
+        
+        let user_exists = self.check_if_user_exists_by_id(user_id)
+            .await?;
+        if user_exists.is_none() {
+            Ok(None)
+        } else {
+            let query = sqlx::query_as!(Wallet, "SELECT * FROM wallets WHERE user_id = $1 AND currency_code = $2", user_id, wallet_currency)
+                .fetch_optional(&self.pool)
+                .await?;
+            Ok(query)
+        }
+    }
+
+    async fn create_wallet(
+        &self,
+        user_id: &i32,
+        wallet_currency: &str
+    ) -> Result<Option<Wallet>, Box<dyn Error>> {
+        
+        let wallet_exists = self.check_if_wallet_exists(user_id, wallet_currency)
+            .await?;
+        if wallet_exists.is_none() {
+            let default_currency_amount:f32 = 0.0;
+            let query = sqlx::query_as!(Wallet, 
+                "INSERT INTO wallets(currency_amount, currency_code, user_id)
+                 VALUES ($1, $2, $3) RETURNING * ", default_currency_amount, wallet_currency, user_id)
+                .fetch_optional(&self.pool)
+                .await?;
+            Ok(query)
+        } else { 
+            Err("Wallet with currency code already exists".into())
         }
     }
 }

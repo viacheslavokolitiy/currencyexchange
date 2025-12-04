@@ -55,6 +55,20 @@ pub struct CreateUserResponse {
     pub updated_at: Option<OffsetDateTime>,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct Currency {
+    pub id: i32,
+    pub currency_code: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Wallet {
+    pub id: Option<i32>,
+    pub currency_amount: Option<f32>,
+    pub currency_code: Option<String>,
+    pub user_id: Option<i32>,
+}
+
 #[derive(Deserialize)]
 pub struct UsernameCheckParams {
     pub name: String

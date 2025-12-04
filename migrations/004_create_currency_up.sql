@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS currencies(
+    id SERIAL PRIMARY KEY,
+    currency_code VARCHAR(255) NOT NULL
+)
