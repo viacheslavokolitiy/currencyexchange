@@ -1,12 +1,16 @@
-use std::io;
-use std::net::TcpListener;
-use actix_web::{App, HttpServer};
 use actix_web::web::Data;
+use actix_web::{web, App, HttpServer};
 use backend::database_connector::DatabaseConnector;
 use backend::env_parser::EnvParser;
-use backend::handlers::get_handlers::is_username_taken;
-use backend::handlers::post_handlers::{create_user, login_user};
+use backend::handlers::get_handlers::{get_all_currencies, get_currency_by_code, is_username_taken};
+use backend::handlers::post_handlers::{create_currency, create_user, login_user};
+use backend::middleware::middleware::JwtMiddleware;
 use backend::middleware::tracing_middleware::NetworkLogSpanBuilder;
+use std::io;
+use std::net::TcpListener;
+pub const FETCH_ALL_CURRENCIES: &str = "/api/v1/currencies";
+pub const FETCH_CURRENCY: &str = "/api/v1/currency";
+pub const CREATE_CURRENCY: &str = "/api/v1/currencies/new";
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
@@ -27,7 +31,22 @@ async fn main() -> io::Result<()> {
         .wrap(NetworkLogSpanBuilder::new().middleware().clone())
         .service(create_user)
         .service(login_user)
-        .service(is_username_taken))
+        .service(is_username_taken)
+        .service(
+            web::resource(FETCH_ALL_CURRENCIES)
+                .wrap(JwtMiddleware)
+                .route(web::get().to(get_all_currencies))
+        )
+        .service(
+            web::resource(FETCH_CURRENCY)
+                .wrap(JwtMiddleware)
+                .route(web::get().to(get_currency_by_code))
+        )
+        .service(
+            web::resource(CREATE_CURRENCY)
+                .wrap(JwtMiddleware)
+                .route(web::post().to(create_currency))
+        ))
         .listen(listener)?
         .run()
         .await

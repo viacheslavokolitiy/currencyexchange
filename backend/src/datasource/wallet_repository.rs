@@ -1,5 +1,5 @@
-use std::error::Error;
 use crate::models::Wallet;
+use std::error::Error;
 
 #[async_trait::async_trait]
 pub trait WalletRepository {

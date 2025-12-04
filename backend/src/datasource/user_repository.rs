@@ -1,7 +1,7 @@
-use std::error::Error;
-use argon2::{Argon2, PasswordHasher};
-use argon2::password_hash::SaltString;
 use crate::models::{CreateUserRequest, CreateUserResponse, UserId};
+use argon2::password_hash::SaltString;
+use argon2::{Argon2, PasswordHasher};
+use std::error::Error;
 
 #[async_trait::async_trait]
 pub trait UserRepository {

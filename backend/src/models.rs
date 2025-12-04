@@ -1,7 +1,7 @@
 use argon2::password_hash::Salt;
-use time::OffsetDateTime;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
+use time::OffsetDateTime;
 
 #[derive(Serialize, Deserialize)]
 pub struct UserId {
@@ -32,6 +32,11 @@ pub struct CreateUserRequest {
     pub firstname: String,
     pub middlename: Option<String>,
     pub lastname: String
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct CreateCurrencyRequest {
+    pub currency_code: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -72,6 +77,11 @@ pub struct Wallet {
 #[derive(Deserialize)]
 pub struct UsernameCheckParams {
     pub name: String
+}
+
+#[derive(Deserialize)]
+pub struct CurrencyByCodeParams {
+    pub code: String
 }
 
 pub struct HashPasswordResult<'a> {
@@ -134,6 +144,19 @@ pub mod auth_responses {
         #[derive(Serialize, Deserialize)]
         pub struct UserNotFound {
             message: String,
+        }
+
+        #[derive(Serialize, Deserialize)]
+        pub struct MissingAuthorizationHeader {
+            message: String,
+        }
+
+        impl MissingAuthorizationHeader {
+            pub fn new<S: Into<String>>(msg: S) -> Self {
+                Self {
+                    message: msg.into()
+                }
+            }
         }
 
         impl UserNotFound {
