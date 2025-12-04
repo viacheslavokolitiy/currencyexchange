@@ -1,11 +1,10 @@
-use std::collections::HashMap;
-use crate::models::{CreateUserRequest, CreateUserResponse, DatabaseUser, HashPasswordResult, UserId};
+use crate::models::{CreateUserRequest, CreateUserResponse, DatabaseUser, UserId};
+use argon2::password_hash::SaltString;
+use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
+use sqlx::testing::TestTermination;
 use sqlx::PgPool;
 use std::error::Error;
 use std::hash::Hash;
-use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
-use argon2::password_hash::{Salt, SaltString};
-use sqlx::testing::TestTermination;
 use time::OffsetDateTime;
 
 #[async_trait::async_trait]
@@ -104,8 +103,8 @@ impl UserRepository for Repository {
 
 #[cfg(test)]
 mod user_repository_spec {
-    use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
     use argon2::password_hash::SaltString;
+    use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 
     #[test]
     fn should_verify_pwds() {

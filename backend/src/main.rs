@@ -2,11 +2,11 @@ use std::io;
 use std::net::TcpListener;
 use actix_web::{App, HttpServer};
 use actix_web::web::Data;
-use currency_exchange_auth::database_connector::DatabaseConnector;
-use currency_exchange_auth::env_parser::EnvParser;
-use currency_exchange_auth::handlers::get_handlers::is_username_taken;
-use currency_exchange_auth::handlers::post_handlers::{create_user, login_user};
-use currency_exchange_auth::middleware::tracing_middleware::NetworkLogSpanBuilder;
+use backend::database_connector::DatabaseConnector;
+use backend::env_parser::EnvParser;
+use backend::handlers::get_handlers::is_username_taken;
+use backend::handlers::post_handlers::{create_user, login_user};
+use backend::middleware::tracing_middleware::NetworkLogSpanBuilder;
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
