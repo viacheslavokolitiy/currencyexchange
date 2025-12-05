@@ -1,11 +1,13 @@
 use crate::datasource::currency_repository::CurrencyRepository;
 use crate::datasource::user_repository::UserRepository;
 use crate::datasource::wallet_repository::WalletRepository;
-use crate::models::{CreateUserRequest, CreateUserResponse, Currency, DatabaseUser, UserId, Wallet};
+use crate::models::{BuyOrder, CreateUserRequest, CreateUserResponse, Currency, DatabaseUser, SellOrder, UserId, Wallet};
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use sqlx::PgPool;
 use std::error::Error;
 use time::OffsetDateTime;
+use crate::datasource::buy_orders_repository::BuyOrdersRepository;
+use crate::datasource::sell_orders_repository::SellOrdersRepository;
 
 pub struct Repository {
     pool: PgPool,
@@ -146,6 +148,26 @@ impl WalletRepository for Repository {
                 "INSERT INTO wallets(currency_amount, currency_code, user_id)
                  VALUES ($1, $2, $3) RETURNING * ", default_currency_amount, wallet_currency, user_id)
             .fetch_optional(&self.pool)
+            .await?;
+        Ok(query)
+    }
+}
+
+#[async_trait::async_trait]
+impl BuyOrdersRepository for Repository {
+    async fn fetch_buy_orders(&self) -> Result<Vec<BuyOrder>, Box<dyn Error>> {
+        let query = sqlx::query_as!(BuyOrder, "SELECT * FROM buy_orders;")
+            .fetch_all(&self.pool)
+            .await?;
+        Ok(query)
+    }
+}
+
+#[async_trait::async_trait]
+impl SellOrdersRepository for Repository {
+    async fn fetch_sell_orders(&self) -> Result<Vec<SellOrder>, Box<dyn Error>> {
+        let query = sqlx::query_as!(SellOrder, "SELECT * FROM sell_orders;")
+            .fetch_all(&self.pool)
             .await?;
         Ok(query)
     }

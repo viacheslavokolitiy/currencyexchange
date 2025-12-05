@@ -1,0 +1,68 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM sell_orders;",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "issuer_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "sell_volume",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "sell_currency_code",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "buy_currency_code",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "buy_sell_exchange_ratio",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "80f5f2bb0a65970f5f92f2ba3d0c9ac7fbac06149b536b65cd38d191a78b5cb6"
+}

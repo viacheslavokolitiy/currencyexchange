@@ -25,6 +25,40 @@ pub struct DatabaseUser {
 }
 
 #[derive(Serialize, Deserialize)]
+#[serde_as]
+pub struct BuyOrder {
+    pub id: Option<i32>,
+    pub issuer_id: Option<i32>,
+    pub buy_volume: Option<i32>,
+    pub buy_currency_code: Option<String>,
+    pub sell_currency_code: Option<String>,
+    pub buy_sell_exchange_ratio: Option<f32>,
+    #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]
+    pub created_at: Option<OffsetDateTime>,
+    #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]
+    pub updated_at: Option<OffsetDateTime>,
+    #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]
+    pub expires_at: Option<OffsetDateTime>
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde_as]
+pub struct SellOrder {
+    pub id: Option<i32>,
+    pub issuer_id: Option<i32>,
+    pub sell_volume: Option<i32>,
+    pub sell_currency_code: Option<String>,
+    pub buy_currency_code: Option<String>,
+    pub buy_sell_exchange_ratio: Option<f32>,
+    #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]
+    pub created_at: Option<OffsetDateTime>,
+    #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]
+    pub updated_at: Option<OffsetDateTime>,
+    #[serde_as(as = "serde_with::TimestampSecondsWithFrac<String>")]
+    pub expires_at: Option<OffsetDateTime>
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct CreateUserRequest {
     pub username: String,
     pub email: String,
@@ -92,17 +126,6 @@ pub struct CurrencyByCodeParams {
 #[derive(Deserialize)]
 pub struct WalletByCurrencyCodeParams {
     pub code: String
-}
-
-pub struct HashPasswordResult<'a> {
-    pub salt: Salt<'a>,
-    pub password_hash: String
-}
-
-impl<'a> HashPasswordResult<'a> {
-    pub fn new(salt: Salt<'a>, password_hash: String) -> Self {
-        Self { salt, password_hash }
-    }
 }
 
 pub mod auth_responses {
