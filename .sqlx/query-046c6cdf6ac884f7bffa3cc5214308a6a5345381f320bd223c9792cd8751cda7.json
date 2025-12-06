@@ -1,0 +1,49 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO currency_exchange_ratios(first_currency_code, second_currency_code, first_currency_value, second_currency_value)\n            VALUES ($1, $2, $3, $4) RETURNING *",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "first_currency_code",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "second_currency_code",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "first_currency_value",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 4,
+        "name": "second_currency_value",
+        "type_info": "Float4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Float4",
+        "Float4"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "046c6cdf6ac884f7bffa3cc5214308a6a5345381f320bd223c9792cd8751cda7"
+}

@@ -1,4 +1,3 @@
-use argon2::password_hash::Salt;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use time::OffsetDateTime;
@@ -82,6 +81,31 @@ pub struct LoginUserRequest {
 #[derive(Deserialize)]
 pub struct CreateWalletRequest {
     pub currency_code: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct CreateBuyOrderRequest {
+    pub issuer_id: i32,
+    pub buy_volume: i32,
+    pub buy_currency_code: String,
+    pub sell_currency_code: String
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct CreateSellOrderRequest {
+    pub issuer_id: i32,
+    pub sell_volume: i32,
+    pub sell_currency_code: String,
+    pub buy_currency_code: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct CurrencyExchangeRatio {
+    pub id: Option<i32>,
+    pub first_currency_code: Option<String>,
+    pub second_currency_code: Option<String>,
+    pub first_currency_value: Option<f32>,
+    pub second_currency_value: Option<f32>,
 }
 
 #[derive(Serialize, Deserialize)]

@@ -1,0 +1,47 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM currency_exchange_ratios WHERE first_currency_code = $1 AND second_currency_code = $2;",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "first_currency_code",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "second_currency_code",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "first_currency_value",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 4,
+        "name": "second_currency_value",
+        "type_info": "Float4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "1a316c93fbbb523e076e38a85b194cb75d17c5ace344000a979baf11c3009575"
+}

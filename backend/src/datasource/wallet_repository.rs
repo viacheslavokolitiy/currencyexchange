@@ -14,4 +14,10 @@ pub trait WalletRepository {
         user_id: &i32,
         wallet_currency: &str,
     ) -> Result<Option<Wallet>, Box<dyn Error>>;
+    
+    async fn check_currency_balance(
+        &self,
+        user_id: &i32,
+        wallet_currency: &str
+    ) -> Result<Option<f32>, Box<dyn Error>>;
 }
