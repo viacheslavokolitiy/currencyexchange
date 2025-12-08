@@ -1,5 +1,6 @@
 use crate::datasource::currency_repository::CurrencyRepository;
 use crate::datasource::user_repository::UserRepository;
+use crate::datasource::wallet_repository::WalletRepository;
 use crate::env_parser::EnvParser;
 use crate::middleware::jwt::{get_token, Claims};
 use crate::models::auth_responses::error_responses::UserNotFound;
@@ -9,7 +10,6 @@ use crate::repository::Repository;
 use actix_web::web::{Data, Json, ReqData};
 use actix_web::{post, HttpResponse};
 use sqlx::PgPool;
-use crate::datasource::wallet_repository::WalletRepository;
 
 #[post("/api/v1/user/create")]
 pub async fn create_user(pool: Data<PgPool>, request: Json<CreateUserRequest>) -> HttpResponse {
