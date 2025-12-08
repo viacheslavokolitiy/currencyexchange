@@ -1,17 +1,19 @@
+use crate::datasource::currency_exchange_ratio_repository::CurrencyExchangeRatioRepository;
 use crate::datasource::currency_repository::CurrencyRepository;
 use crate::datasource::user_repository::UserRepository;
 use crate::datasource::wallet_repository::WalletRepository;
 use crate::env_parser::EnvParser;
+use crate::error_responses::CurrencyExchangeRatesCreateFailed;
 use crate::middleware::jwt::{get_token, Claims};
 use crate::models::auth_responses::error_responses::UserNotFound;
 use crate::models::auth_responses::success_responses::LoggedInUser;
-use crate::models::{CreateCurrencyRequest, CreateExchangeRateRequest, CreateUserRequest, CreateWalletRequest, LoginUserRequest};
+use crate::models::{CreateBuyOrderRequest, CreateCurrencyRequest, CreateExchangeRateRequest, CreateUserRequest, CreateWalletRequest, LoginUserRequest};
 use crate::repository::Repository;
 use actix_web::web::{Data, Json, ReqData};
 use actix_web::{post, HttpResponse};
 use sqlx::PgPool;
-use crate::datasource::currency_exchange_ratio_repository::CurrencyExchangeRatioRepository;
-use crate::error_responses::CurrencyExchangeRatesCreateFailed;
+use crate::datasource::buy_orders_repository::BuyOrdersRepository;
+use crate::models::error_responses::BuyOrdersNotFoundResponse;
 
 #[post("/api/v1/user/create")]
 pub async fn create_user(pool: Data<PgPool>, request: Json<CreateUserRequest>) -> HttpResponse {
@@ -73,9 +75,12 @@ pub async fn create_wallet(
     let uid = claims.sub.parse::<i32>().unwrap();
     let currency = req.0.currency_code;
     let wallet = repository.create_wallet(&uid, &currency)
-        .await
-        .expect("Error creating wallet");
-    HttpResponse::Created().json(wallet)
+        .await;
+    if let Ok(wallet) = wallet {
+        HttpResponse::Created().json(wallet)
+    } else {
+        HttpResponse::Conflict().json(wallet.err().unwrap().to_string())
+    }
 }
 
 pub async fn create_exchange_rate(
@@ -104,5 +109,37 @@ pub async fn create_exchange_rate(
                 resp.err().unwrap().to_string(), 
                 (first_currency_code.to_string(), second_currency_code.to_string()))
         )
+    }
+}
+
+pub async fn post_new_buy_order(
+    claims: ReqData<Claims>,
+    pool: Data<PgPool>,
+    req: Json<CreateBuyOrderRequest>,
+) -> HttpResponse {
+    let repository = Repository::new(pool.get_ref().clone());
+    let uid = claims.sub.parse::<i32>().unwrap();
+    let user_buy_orders = repository.fetch_user_buy_orders(&uid)
+        .await;
+    if let Ok(user_buy_orders) = user_buy_orders {
+        // no previous orders just put an order
+        if user_buy_orders.is_empty() {
+            let resp = repository.create_buy_order(
+                &uid,
+                &req.0
+            ).await;
+            if let Ok(res) = resp {
+                HttpResponse::Created().json(res)
+            } else {
+                HttpResponse::BadRequest().json(resp.err().unwrap().to_string())
+            }
+        } else {
+            todo!()
+        }
+    } else {
+        HttpResponse::NotFound()
+            .json(
+                BuyOrdersNotFoundResponse::new("User buy orders not found")
+            )
     }
 }

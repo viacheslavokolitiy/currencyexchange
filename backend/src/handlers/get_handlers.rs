@@ -1,6 +1,5 @@
 use crate::datasource::currency_repository::CurrencyRepository;
 use crate::datasource::user_repository::UserRepository;
-use crate::datasource::wallet_repository::WalletRepository;
 use crate::middleware::jwt::Claims;
 use crate::models::auth_responses::success_responses::{UsernameAlreadyTaken, UsernameAvailable};
 use crate::models::{CurrencyByCodeParams, CurrencyExchangeRatesParams, UsernameCheckParams, WalletByCurrencyCodeParams};
@@ -8,8 +7,10 @@ use crate::repository::Repository;
 use actix_web::web::{Data, Query, ReqData};
 use actix_web::{get, HttpResponse};
 use sqlx::PgPool;
+use crate::datasource::buy_orders_repository::BuyOrdersRepository;
 use crate::datasource::currency_exchange_ratio_repository::CurrencyExchangeRatioRepository;
-use crate::models::error_responses::CurrencyExchangeRatesNotFound;
+use crate::datasource::wallet_repository::WalletRepository;
+use crate::models::error_responses::{BuyOrdersNotFoundResponse, CurrencyExchangeRatesNotFound};
 
 #[get("/api/v1/users")]
 pub async fn is_username_taken(pool: Data<PgPool>, query: Query<UsernameCheckParams>) -> HttpResponse {
@@ -77,5 +78,20 @@ pub async fn find_exchange_rates(
         )
     } else { 
         HttpResponse::Ok().json(resp.unwrap())
+    }
+}
+
+pub async fn find_buy_orders(
+    pool: Data<PgPool>
+) -> HttpResponse {
+    let repo = Repository::new(pool.as_ref().clone());
+    let resp = repo.fetch_buy_orders()
+        .await;
+    if let Ok(r) = resp {
+        HttpResponse::Ok().json(r)
+    } else { 
+        HttpResponse::NotFound().json(
+            BuyOrdersNotFoundResponse::new("Buy orders not found")
+        )
     }
 }

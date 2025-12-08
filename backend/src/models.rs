@@ -85,7 +85,6 @@ pub struct CreateWalletRequest {
 
 #[derive(Serialize, Deserialize)]
 pub struct CreateBuyOrderRequest {
-    pub issuer_id: i32,
     pub buy_volume: i32,
     pub buy_currency_code: String,
     pub sell_currency_code: String
@@ -105,6 +104,17 @@ pub struct CreateExchangeRateRequest {
     pub second_currency_code: String,
     pub first_currency_value: f32,
     pub second_currency_value: f32
+}
+
+#[derive(Deserialize)]
+pub struct ReplenishBalanceRequest {
+    pub amount: f32,
+    pub currency_code: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ReplenishBalanceResponse {
+    pub message: String
 }
 
 #[derive(Serialize, Deserialize)]
@@ -166,6 +176,14 @@ pub struct WalletByCurrencyCodeParams {
     pub code: String
 }
 
+impl ReplenishBalanceResponse {
+    pub fn new<S: Into<String>>(message: S) -> Self {
+        Self {
+            message: message.into()
+        }
+    }
+}
+
 pub mod error_responses {
     use serde::{Deserialize, Serialize};
 
@@ -173,6 +191,32 @@ pub mod error_responses {
     pub struct CurrencyExchangeRatesNotFound {
         pub message: String,
         pub pair: (String, String),
+    }
+
+    #[derive(Deserialize, Serialize)]
+    pub struct ReplenishBalanceErrorResponse {
+        pub message: String,
+    }
+
+    #[derive(Deserialize, Serialize)]
+    pub struct BuyOrdersNotFoundResponse {
+        pub message: String,
+    }
+
+    impl BuyOrdersNotFoundResponse {
+        pub fn new<S: Into<String>>(message: S) -> Self {
+            Self {
+                message: message.into()
+            }
+        }
+    }
+
+    impl ReplenishBalanceErrorResponse {
+        pub fn new<S: Into<String>>(message: S) -> Self {
+            Self {
+                message: message.into()
+            }
+        }
     }
 
     impl CurrencyExchangeRatesNotFound {

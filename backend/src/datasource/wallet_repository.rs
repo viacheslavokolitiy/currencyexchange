@@ -22,6 +22,13 @@ pub trait WalletRepository {
         user_id: &i32,
         wallet_currency: &str
     ) -> Result<Option<f32>, Box<dyn Error>>;
+    
+    async fn replenish_wallet_balance(
+        &self,
+        user_id: &i32,
+        amount: &f32,
+        currency_code: &str
+    ) -> Result<(), Box<dyn Error>>;
 }
 
 #[async_trait::async_trait]
@@ -75,6 +82,28 @@ impl WalletRepository for Repository {
             }
         } else {
             Ok(None)
+        }
+    }
+
+    async fn replenish_wallet_balance(
+        &self, 
+        user_id: &i32, 
+        amount: &f32, 
+        currency_code: &str
+    ) -> Result<(), Box<dyn Error>> {
+        let check_balance = self.check_currency_balance(user_id, currency_code).await?;
+        if let Some (check_balance) = check_balance { 
+            let new_balance = amount + check_balance;
+            let query = sqlx::query_as!(Wallet, 
+                "UPDATE wallets SET currency_amount = $1 WHERE user_id = $2 AND currency_code = $3", new_balance, user_id, currency_code
+            ).execute(&self.pool).await?;
+            if query.rows_affected() > 0 {
+                Ok(())
+            } else { 
+                Err("Unexpect error occurred during balance update".into())
+            }
+        } else { 
+            Err("Wallet for currency is unavailable".into())
         }
     }
 }

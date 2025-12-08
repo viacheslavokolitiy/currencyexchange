@@ -10,11 +10,18 @@ use time::{Duration, OffsetDateTime};
 pub trait BuyOrdersRepository {
     async fn fetch_buy_orders(&self) -> Result<Vec<BuyOrder>, Box<dyn Error>>;
 
-    async fn create_buy_order(&self, order: &CreateBuyOrderRequest) -> Result<Option<BuyOrder>, Box<dyn Error>>;
+    async fn fetch_user_buy_orders(&self, issuer_id: &i32) -> Result<Vec<BuyOrder>, Box<dyn Error>>;
+
+    async fn create_buy_order(
+        &self, 
+        issuer_id: &i32, 
+        order: &CreateBuyOrderRequest
+    ) -> Result<Option<BuyOrder>, Box<dyn Error>>;
 }
 
 #[async_trait::async_trait]
 impl BuyOrdersRepository for Repository {
+    
     async fn fetch_buy_orders(&self) -> Result<Vec<BuyOrder>, Box<dyn Error>> {
         let query = sqlx::query_as!(BuyOrder, "SELECT * FROM buy_orders;")
             .fetch_all(&self.pool)
@@ -22,11 +29,21 @@ impl BuyOrdersRepository for Repository {
         Ok(query)
     }
 
-    async fn create_buy_order(&self, order: &CreateBuyOrderRequest) -> Result<Option<BuyOrder>, Box<dyn Error>> {
+    async fn fetch_user_buy_orders(&self, issuer_id: &i32) -> Result<Vec<BuyOrder>, Box<dyn Error>> {
+        let query = sqlx::query_as!(BuyOrder, "SELECT * FROM buy_orders WHERE issuer_id = $1;", issuer_id)
+            .fetch_all(&self.pool)
+            .await?;
+        Ok(query)
+    }
+
+    async fn create_buy_order(
+        &self, 
+        issuer_id: &i32, 
+        order: &CreateBuyOrderRequest
+    ) -> Result<Option<BuyOrder>, Box<dyn Error>> {
         let buy_volume = order.buy_volume;
         let buy_currency_code = &order.buy_currency_code;
         let sell_currency_code = &order.sell_currency_code;
-        let issuer_id = order.issuer_id;
 
         // find currency exchange values for pairs
         // let say we want to buy 1 USD and our offered currency is EUR
