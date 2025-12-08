@@ -1,13 +1,4 @@
-use crate::datasource::buy_orders_repository::BuyOrdersRepository;
-use crate::datasource::currency_exchange_ratio_repository::CurrencyExchangeRatioRepository;
-use crate::datasource::currency_repository::CurrencyRepository;
-use crate::datasource::sell_orders_repository::SellOrdersRepository;
-use crate::datasource::user_repository::UserRepository;
-use crate::datasource::wallet_repository::WalletRepository;
-use argon2::{PasswordHasher, PasswordVerifier};
 use sqlx::PgPool;
-use std::error::Error;
-use std::ops::Add;
 
 pub struct Repository {
     pub pool: PgPool,
