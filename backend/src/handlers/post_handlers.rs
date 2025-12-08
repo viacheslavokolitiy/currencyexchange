@@ -5,11 +5,13 @@ use crate::env_parser::EnvParser;
 use crate::middleware::jwt::{get_token, Claims};
 use crate::models::auth_responses::error_responses::UserNotFound;
 use crate::models::auth_responses::success_responses::LoggedInUser;
-use crate::models::{CreateCurrencyRequest, CreateUserRequest, CreateWalletRequest, LoginUserRequest};
+use crate::models::{CreateCurrencyRequest, CreateExchangeRateRequest, CreateUserRequest, CreateWalletRequest, LoginUserRequest};
 use crate::repository::Repository;
 use actix_web::web::{Data, Json, ReqData};
 use actix_web::{post, HttpResponse};
 use sqlx::PgPool;
+use crate::datasource::currency_exchange_ratio_repository::CurrencyExchangeRatioRepository;
+use crate::error_responses::CurrencyExchangeRatesCreateFailed;
 
 #[post("/api/v1/user/create")]
 pub async fn create_user(pool: Data<PgPool>, request: Json<CreateUserRequest>) -> HttpResponse {
@@ -74,4 +76,33 @@ pub async fn create_wallet(
         .await
         .expect("Error creating wallet");
     HttpResponse::Created().json(wallet)
+}
+
+pub async fn create_exchange_rate(
+    pool: Data<PgPool>,
+    req: Json<CreateExchangeRateRequest>,
+) -> HttpResponse {
+    let repository = Repository::new(pool.get_ref().clone());
+    let first_currency_code = &req.first_currency_code;
+    let second_currency_code = &req.second_currency_code;
+    let first_currency_value = req.first_currency_value;
+    let second_currency_value = req.second_currency_value;
+
+    let resp = repository.add_exchange_ratio(first_currency_code, second_currency_code, first_currency_value, second_currency_value)
+        .await;
+    if let Ok(res) = resp {
+        if res.is_none() {
+            HttpResponse::BadRequest().json(
+                CurrencyExchangeRatesCreateFailed::new("Error during exchange rate creation", (first_currency_code, second_currency_code)),
+            )
+        } else {
+            HttpResponse::Created().json(res.unwrap())
+        }
+    } else {
+        HttpResponse::Conflict().json(
+            CurrencyExchangeRatesCreateFailed::new(
+                resp.err().unwrap().to_string(), 
+                (first_currency_code.to_string(), second_currency_code.to_string()))
+        )
+    }
 }

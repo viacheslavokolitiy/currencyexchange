@@ -2,8 +2,20 @@ use actix_web::web::Data;
 use actix_web::{web, App, HttpServer};
 use backend::database_connector::DatabaseConnector;
 use backend::env_parser::EnvParser;
-use backend::handlers::get_handlers::{find_wallet, get_all_currencies, get_currency_by_code, is_username_taken};
-use backend::handlers::post_handlers::{create_currency, create_user, create_wallet, login_user};
+use backend::handlers::get_handlers::{
+    find_exchange_rates,
+    find_wallet,
+    get_all_currencies,
+    get_currency_by_code,
+    is_username_taken
+};
+use backend::handlers::post_handlers::{
+    create_currency,
+    create_exchange_rate,
+    create_user,
+    create_wallet,
+    login_user
+};
 use backend::middleware::middleware::JwtMiddleware;
 use backend::middleware::tracing_middleware::NetworkLogSpanBuilder;
 use std::io;
@@ -13,6 +25,8 @@ pub const FETCH_CURRENCY: &str = "/api/v1/currency";
 pub const CREATE_CURRENCY: &str = "/api/v1/currencies/new";
 pub const FIND_WALLET: &str = "/api/v1/me/wallet";
 pub const CREATE_WALLET: &str = "/api/v1/me/wallet/create";
+pub const EXCHANGE_RATES: &str = "/api/v1/currencies/rates";
+pub const EXCHANGE_RATES_NEW: &str = "/api/v1/currencies/rates/create";
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
@@ -56,7 +70,15 @@ async fn main() -> io::Result<()> {
             web::resource(CREATE_WALLET)
                 .wrap(JwtMiddleware)
                 .route(web::post().to(create_wallet))
-        ))
+        ).service(
+            web::resource(EXCHANGE_RATES)
+                .wrap(JwtMiddleware)
+                .route(web::get().to(find_exchange_rates))
+         ).service(
+            web::resource(EXCHANGE_RATES_NEW)
+                .wrap(JwtMiddleware)
+                .route(web::post().to(create_exchange_rate))
+         ))
         .listen(listener)?
         .run()
         .await

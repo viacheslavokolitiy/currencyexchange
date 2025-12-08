@@ -99,6 +99,14 @@ pub struct CreateSellOrderRequest {
     pub buy_currency_code: String,
 }
 
+#[derive(Deserialize)]
+pub struct CreateExchangeRateRequest {
+    pub first_currency_code: String,
+    pub second_currency_code: String,
+    pub first_currency_value: f32,
+    pub second_currency_value: f32
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct CurrencyExchangeRatio {
     pub id: Option<i32>,
@@ -148,8 +156,33 @@ pub struct CurrencyByCodeParams {
 }
 
 #[derive(Deserialize)]
+pub struct CurrencyExchangeRatesParams {
+    pub first: String,
+    pub second: String,
+}
+
+#[derive(Deserialize)]
 pub struct WalletByCurrencyCodeParams {
     pub code: String
+}
+
+pub mod error_responses {
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Deserialize, Serialize)]
+    pub struct CurrencyExchangeRatesNotFound {
+        pub message: String,
+        pub pair: (String, String),
+    }
+
+    impl CurrencyExchangeRatesNotFound {
+        pub fn new<S: Into<String>>(message: S, pair: (S, S)) -> Self {
+            Self {
+                message: message.into(),
+                pair: (pair.0.into(), pair.1.into())
+            }
+        }
+    }
 }
 
 pub mod auth_responses {

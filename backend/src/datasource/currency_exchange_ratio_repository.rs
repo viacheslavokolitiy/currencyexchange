@@ -51,7 +51,7 @@ impl CurrencyExchangeRatioRepository for Repository {
                 .fetch_optional(&self.pool).await?;
             Ok(query)
         } else {
-            Err("Exchange rate pair is already exists".into())
+            Err("Exchange rate pair already exists".into())
         }
     }
 }
