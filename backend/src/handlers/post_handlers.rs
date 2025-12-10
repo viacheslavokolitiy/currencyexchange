@@ -1,5 +1,7 @@
+use crate::datasource::buy_orders_repository::BuyOrdersRepository;
 use crate::datasource::currency_exchange_ratio_repository::CurrencyExchangeRatioRepository;
 use crate::datasource::currency_repository::CurrencyRepository;
+use crate::datasource::sell_orders_repository::SellOrdersRepository;
 use crate::datasource::user_repository::UserRepository;
 use crate::datasource::wallet_repository::WalletRepository;
 use crate::env_parser::EnvParser;
@@ -7,13 +9,13 @@ use crate::error_responses::CurrencyExchangeRatesCreateFailed;
 use crate::middleware::jwt::{get_token, Claims};
 use crate::models::auth_responses::error_responses::UserNotFound;
 use crate::models::auth_responses::success_responses::LoggedInUser;
-use crate::models::{CreateBuyOrderRequest, CreateCurrencyRequest, CreateExchangeRateRequest, CreateUserRequest, CreateWalletRequest, LoginUserRequest};
+use crate::models::{CreateBuyOrderRequest, CreateCurrencyRequest, CreateExchangeRateRequest, CreateSellOrderRequest, CreateUserRequest, CreateWalletRequest, LoginUserRequest};
 use crate::repository::Repository;
 use actix_web::web::{Data, Json, ReqData};
-use actix_web::{post, HttpResponse};
+use actix_web::{post, HttpResponse, HttpResponseBuilder};
+use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-use crate::datasource::buy_orders_repository::BuyOrdersRepository;
-use crate::models::error_responses::BuyOrdersNotFoundResponse;
+use std::error::Error;
 
 #[post("/api/v1/user/create")]
 pub async fn create_user(pool: Data<PgPool>, request: Json<CreateUserRequest>) -> HttpResponse {
@@ -119,27 +121,38 @@ pub async fn post_new_buy_order(
 ) -> HttpResponse {
     let repository = Repository::new(pool.get_ref().clone());
     let uid = claims.sub.parse::<i32>().unwrap();
-    let user_buy_orders = repository.fetch_user_buy_orders(&uid)
-        .await;
-    if let Ok(user_buy_orders) = user_buy_orders {
-        // no previous orders just put an order
-        if user_buy_orders.is_empty() {
-            let resp = repository.create_buy_order(
-                &uid,
-                &req.0
-            ).await;
-            if let Ok(res) = resp {
-                HttpResponse::Created().json(res)
-            } else {
-                HttpResponse::BadRequest().json(resp.err().unwrap().to_string())
-            }
-        } else {
-            todo!()
-        }
+    let resp = repository.create_buy_order(
+        &uid,
+        &req.0
+    ).await;
+    produce_new_order_response(resp, HttpResponse::Created(), HttpResponse::BadRequest())
+}
+
+pub async fn post_new_sale_order(
+    claims: ReqData<Claims>,
+    pool: Data<PgPool>,
+    req: Json<CreateSellOrderRequest>
+) -> HttpResponse {
+    let repository = Repository::new(pool.get_ref().clone());
+    let uid = claims.sub.parse::<i32>().unwrap();
+    let resp = repository.create_sell_order(
+        &uid,
+        &req.0
+    ).await;
+    produce_new_order_response(resp, HttpResponse::Created(), HttpResponse::BadRequest())
+}
+
+fn produce_new_order_response<'a, T>(
+    response: Result<Option<T>, Box<dyn Error>>,
+    mut success_builder: HttpResponseBuilder,
+    mut error_builder: HttpResponseBuilder
+) -> HttpResponse
+where
+    T: Serialize + Deserialize<'a> {
+
+    if let Ok(res) = response {
+        success_builder.json(res)
     } else {
-        HttpResponse::NotFound()
-            .json(
-                BuyOrdersNotFoundResponse::new("User buy orders not found")
-            )
+        error_builder.json(response.err().unwrap().to_string())
     }
 }

@@ -13,6 +13,7 @@ pub trait SellOrdersRepository {
     
     async fn create_sell_order(
         &self, 
+        issuer_id: &i32,
         order: &CreateSellOrderRequest
     ) -> Result<Option<SellOrder>, Box<dyn Error>>;
 }
@@ -28,12 +29,12 @@ impl SellOrdersRepository for Repository {
 
     async fn create_sell_order(
         &self,
+        issuer_id: &i32,
         order: &CreateSellOrderRequest
     ) -> Result<Option<SellOrder>, Box<dyn Error>> {
         let sell_volume = order.sell_volume;
         let sell_currency_code = &order.buy_currency_code;
         let buy_currency_code = &order.buy_currency_code;
-        let issuer_id = order.issuer_id;
         // find currency exchange values for pairs
         // let say we want to buy 1 USD and our offered currency is EUR
         // exchange rate is for instance for 1 USD you get 1.15 EUR

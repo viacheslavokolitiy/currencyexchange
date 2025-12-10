@@ -58,6 +58,14 @@ pub struct SellOrder {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct Fee {
+    pub id: Option<i32>,
+    pub exchange_comission: Option<f32>,
+    pub state_tax: Option<f32>,
+    pub sales_tax: Option<f32>,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct CreateUserRequest {
     pub username: String,
     pub email: String,
@@ -92,7 +100,6 @@ pub struct CreateBuyOrderRequest {
 
 #[derive(Serialize, Deserialize)]
 pub struct CreateSellOrderRequest {
-    pub issuer_id: i32,
     pub sell_volume: i32,
     pub sell_currency_code: String,
     pub buy_currency_code: String,

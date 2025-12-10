@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM fees",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "exchange_comission",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 2,
+        "name": "state_tax",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 3,
+        "name": "sales_tax",
+        "type_info": "Float4"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "49ee7f619a8d1144b927a320070a95e23fe78b9481b46bda7630875069e6d87c"
+}

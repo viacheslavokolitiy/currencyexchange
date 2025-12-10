@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE wallets SET currency_amount = $1 WHERE user_id = $2 AND currency_code = $3",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Float4",
+        "Int4",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f33e9fba36b7a8edba8fdf6e485f5adc12ac5c7756037ecce7602536f1ca8ee8"
+}
